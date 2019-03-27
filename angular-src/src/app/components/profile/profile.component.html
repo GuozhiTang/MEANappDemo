@@ -1,0 +1,9 @@
+<!-- make sure there is a user loaded here and has been filled-->
+<div *ngIf="user">
+  <h1 class="page-header" style="margin-top: 15px"><b>{{user.name}}</b></h1>
+  <hr>
+  <ul class="list-group">
+    <li class="list-group-item">Username: {{user.username}}</li>
+    <li class="list-group-item">Email: {{user.email}}</li>
+  </ul>
+</div>

@@ -1,0 +1,50 @@
+<div class="jumbotron text-center">
+  <h1>MEAN Stack App Demo</h1>
+  <hr>
+  <p class="lead">This is a MEAN Stack App Demo including some login/register functionalities.</p>
+  <p class="lead">Created by Guozhi Tang with refrences from Brad Traversy's Tutorials.</p>
+  <div>
+    <a class="btn btn-primary" [routerLink]="['/register']"><i class="fas fa-user-plus"></i> Register</a> <a class="btn btn-dark" [routerLink]="['/login']"><i class="fas fa-user"></i> Login</a>
+  </div>
+</div>
+<hr>
+<h2><b>Back-end:</b></h2>
+<div class="row">
+  <div class="col-md-3">
+    <h3>Express Backend</h3>
+    <p>The whole backend server and RESTful API is completed by Node.js/Express. Additionally, it can communicate with the database.</p>
+  </div>
+  <div class="col-md-3">
+    <h3>MongoDB</h3>
+    <p>Mongoose(Object Document Mapper) is used to irganize models and query the MongoDB database. All the information stored in collections could be JSON type. It is more powerful than Mongojs.</p>
+  </div>
+  <div class="col-md-3">
+      <h3>JWT Tokens</h3>
+      <p>Full featured authentication using JSON web tokens. Login and store user data locally in "Dev Tools/Application/Storage/Local Storage". Protect and authenticate the password part of user.</p>
+  </div>
+  
+  <div class="col-md-3">
+    <h3>CORS</h3>
+    <p>Cross-origin Resource Sharing. In the demo the backend server and frontend angular are on different ports. In order to make request from front end, we need to enable this.</p>
+  </div>
+</div>
+<hr>
+<h2><b>Front-end:</b></h2>
+<div class="row">
+  <div class="col-md-3">
+    <h3>Angular7/Angular-CLI</h3>
+    <p>Angular-CLI(Command Line Interface)is used to generate components, services and more. As well as Local development server which is easy to do the compilation. Use ng build to compile everything to the output public folder(same port).</p>
+  </div>
+  <div class="col-md-3">
+    <h3>@auth0/angular-jwt</h3>
+    <p>A module to handle the authentication tokens. Fetch the tokens from the server and store them in loacl storage. Check whether the token has expired yet.</p>
+  </div>
+  <div class="col-md-3">
+    <h3>Auth Guard</h3>
+    <p>For authentication as far as routes, I use authentication guard which is able to set which page could is visible at this condition(login or not).</p>
+  </div>
+  <div class="col-md-3">
+    <h3>Bootstrap</h3>
+    <p>Simply, the front-end framework is Bootstrap which is based on Twitter. Here are two helpful websites: <a href="https://bootswatch.com">bootswatch</a> and <a href="https://getbootstrap.com/docs/4.3/examples/">getboostrap</a> with many bootstrap examples.</p>
+  </div>
+</div>
