@@ -1,5 +1,5 @@
 // Main server entry point file
-// Bring all the modules
+// Bring in all the modules
 const express = require('express');
 // path is a core module so do not need to install in dependencies
 const path = require('path');
@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const config = require('./config/database');
 
 // To call the connect function of mongoose
+// Information for mongodb is in config file
 mongoose.connect(config.database,{useNewUrlParser: true});
 
 // To put in something so that it will let us know if we are connected
@@ -17,6 +18,7 @@ mongoose.connection.on('connected', () => {
   console.log('Connected to database ' + config.database);
 });
 
+// On Error
 mongoose.connection.on('error', (err) => {
   console.log('Database error: ' + err);
 });
@@ -24,7 +26,7 @@ mongoose.connection.on('error', (err) => {
 // Initialize app variable with express
 const app = express();
 
-// Include the file of user routes
+// Include all files of user routes
 const users = require('./routes/users');
 
 // Port Number
@@ -32,21 +34,21 @@ const users = require('./routes/users');
 // For Heroku
 const port = process.env.PORT || 8080;
 
-// CORS Middleware: allows us to make request to our api from a different domain
+// CORS Middleware: allows us to make request to our api from a different domain name
 app.use(cors());
 
 // Set Static Folder: client files, entire angular2 app
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Body Parser Middleware: parses incoming request body
-//   to access req.body and get the form value
-//   where key is the name attribute of input or textarea
+// to access req.body and get the form value
+// where key is the name attribute of input or textarea
 app.use(bodyParser.json());
 
 // Passport Middleware
 // Strategy: passport-jwt
-//   *MUST* be after Express Session Middleware
-//   if express-session is being used
+// *MUST* be after Express Session Middleware
+// if express-session is being used
 app.use(passport.initialize());
 app.use(passport.session());
 

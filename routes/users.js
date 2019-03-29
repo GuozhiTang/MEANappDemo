@@ -1,8 +1,10 @@
+// All of our users' routes
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const config = require('../config/database');
+// Bring in our models
 const User = require('../models/user');
 
 // Register - /users/register
