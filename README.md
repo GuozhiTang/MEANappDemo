@@ -30,7 +30,7 @@ npm install
 * Then, install the dependencies for the angular frontend at `./angular-src` folder:
 
 ```Bash
-cd client
+cd angular-src
 
 npm install
 ```
