@@ -42,7 +42,7 @@ npm install
 
 ```javascript
 module.exports = {
-  database: 'mongodb://localhost:27017/meanauthapi',
+  database: 'mongodb://localhost:27017/<database>',
   secret: 'yoursecret'
 }
 ```
@@ -50,7 +50,7 @@ module.exports = {
 
 ```javascript
 module.exports = {
-  database: 'mongodb+srv://guozhi:12345@meanappdemo-4p5ba.mongodb.net/test?retryWrites=true',
+  database: 'mongodb+srv://<username>:<password>@meanappdemo-4p5ba.mongodb.net/<database>?retryWrites=true&w=majority',
   secret: 'yoursecret'
 }
 ```
