@@ -50,7 +50,7 @@ module.exports = {
 
 ```javascript
 module.exports = {
-  database: 'mongodb+srv://<username>:<password>@meanappdemo-4p5ba.mongodb.net/<database>?retryWrites=true&w=majority',
+  database: 'mongodb+srv://<username>:<password>@guozhimongo-4p5ba.mongodb.net/<database>?retryWrites=true&w=majority',
   secret: 'yoursecret'
 }
 ```
