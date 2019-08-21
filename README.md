@@ -27,13 +27,21 @@ brew install node
 npm install
 ```
 
-* Then, install the dependencies for the angular frontend at `./angular-src` folder:
+* Then there are two ways to install the dependencies for angular frontend:
 
-```Bash
-cd angular-src
+  * Directly install at root directory:
 
-npm install
-```
+  ```Bash
+  npm run angular-install
+  ```
+
+  * Or install the dependencies for angular frontend seperately at `./angular-src` folder:
+
+  ```Bash
+  cd angular-src
+
+  npm install
+  ```
 
 ### Configuration
 
@@ -74,22 +82,32 @@ module.exports = {
 
 ## Running the project
 
-* First, run the MongoDB server:
+* First, run the MongoDB server in the terminal:
 ```Bash
 mongod
 ```
 
-* Then open a new terminal and change to the root directory to run the backend server:
+* Then there are two ways to run the backend and frontend servers:
 
-```Bash
-nodemon
-```
+  * Directly run two servers at the same time with the help of `concurrently`
 
-* After that, open a new terminal and change to the `./angular-src` and run the frontend server:
+  ```Bash
+  npm run dev
+  ```
+  
+  * Run two servers seperately:
 
-```Bash
-ng serve
-```
+    * Open a new terminal and change to the root directory to run the backend server:
+
+    ```Bash
+    nodemon
+    ```
+
+    * After that, open a new terminal and change to the `./angular-src` and run the frontend server:
+
+    ```Bash
+    ng serve
+    ```
 
 Then, we can see our project locally on http://localhost:4200.
 
