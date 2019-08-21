@@ -89,7 +89,7 @@ mongod
 
 * Then there are two ways to run the backend and frontend servers:
 
-  * Directly run two servers at the same time with the help of `concurrently`
+  * Directly run two servers at the same time with the help of `concurrently` at root directory
 
   ```Bash
   npm run dev
