@@ -19,6 +19,9 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
   }
 
+  /**
+   * Method to logout of the system and clear out the data in local storage
+   */
   onLogoutClick() {
     this.authService.logout();
     this.flashMessage.show('You are logged out', {

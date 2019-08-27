@@ -9,7 +9,10 @@ export class AuthGuard implements CanActivate {
     private router:Router
   ) {}
 
-  // Here we put our logic of routes
+  /**
+   * Logic of routes here
+   * Some components can only be accessed after successfully login
+   */
   canActivate() {
     if (this.authService.isTokenExp()) {
       // Re-direct our route

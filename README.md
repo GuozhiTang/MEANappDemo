@@ -74,10 +74,13 @@ module.exports = {
     // For Heroku
     const port = process.env.PORT || 8080;
     ```
-  * Meanwhile, in `./angular-src/src/app/services/auth.service.ts`, all the http request should be changed like below:
+  * Meanwhile, in `./angular-src/src/app/testServer.ts`, the testServer parameter should be changed like below:
     ```javascript
-    // return this.http.post('http://localhost:3000/users/authenticate', user, {headers: headers})
-    return this.http.post('users/authenticate', user, {headers: headers})
+    // When in development mode, the address for Node Server could be defined exactly 
+    //export const testServer = 'http://localhost:3000/';
+
+    // For Production mode
+    export const testServer = '';
     ```
 
 ## Running the project

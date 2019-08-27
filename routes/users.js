@@ -7,7 +7,9 @@ const config = require('../config/database');
 // Bring in our models
 const User = require('../models/user');
 
-// Register - /users/register
+// @route  POST users/register
+// @desc   To register and add new users
+// @access Private
 router.post('/register', (req, res, next) => {
   //  res.send('REGISTER');
   let newUser = new User({
@@ -26,7 +28,9 @@ router.post('/register', (req, res, next) => {
   });
 });
 
-// Authenticate- /users/authenticate
+// @route  POST users/authenticate
+// @desc   To authenticate that whether the login user has same information with register one.
+// @access Private
 router.post('/authenticate', (req, res, next) => {
   // res.send('AUTHENTICATE');
   const username = req.body.username;
@@ -67,8 +71,9 @@ router.post('/authenticate', (req, res, next) => {
   })
 });
 
-// Profile - /users/profile
-// one of the routes we will protect with our aithenticate with our token
+// @route  GET users/profile
+// @desc   one of the routes we will protect with our aithenticate with our token
+// @access Private
 router.get('/profile', passport.authenticate('jwt', {session: false}), (req, res, next) => {
 // router.get('/profile', (req, res, next) => {
   // res.send('PROFILE');
