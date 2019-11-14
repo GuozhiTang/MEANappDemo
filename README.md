@@ -1,5 +1,5 @@
 # MEANappDemo
-![](https://img.shields.io/badge/node-^6.7.0-blue.svg) ![](https://img.shields.io/badge/angular-^7.2.0-blue.svg) ![](https://img.shields.io/badge/express-^4.16.3-green.svg) ![](https://img.shields.io/badge/mongoose-^5.1.5-green.svg) <br>
+![](https://img.shields.io/badge/node-^6.7.0-blue.svg) ![](https://img.shields.io/badge/angular-^7.2.0-green.svg) ![](https://img.shields.io/badge/express-^4.16.3-blue.svg) ![](https://img.shields.io/badge/mongoose-^5.1.5-yellow.svg) <br>
 
 A MEAN stack demo appliction whose frontend is built by angular-cli while backend is built by express. Here is a simple demo of login/logout and register which can be used whenever we want.
 
