@@ -440,6 +440,9 @@ var NavbarComponent = /** @class */ (function () {
     }
     NavbarComponent.prototype.ngOnInit = function () {
     };
+    /**
+     * Method to logout of the system and clear out the data in local storage
+     */
     NavbarComponent.prototype.onLogoutClick = function () {
         this.authService.logout();
         this.flashMessage.show('You are logged out', {
@@ -593,6 +596,9 @@ var RegisterComponent = /** @class */ (function () {
     }
     RegisterComponent.prototype.ngOnInit = function () {
     };
+    /**
+     * Method to submit the user information and add them to the database
+     */
     RegisterComponent.prototype.onRegisterSubmit = function () {
         var _this = this;
         var user = {
@@ -666,7 +672,10 @@ var AuthGuard = /** @class */ (function () {
         this.authService = authService;
         this.router = router;
     }
-    // Here we put our logic of routes
+    /**
+     * Logic of routes here
+     * Some components can only be accessed after successfully login
+     */
     AuthGuard.prototype.canActivate = function () {
         if (this.authService.isTokenExp()) {
             // Re-direct our route
@@ -704,6 +713,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/http */ "./node_modules/@angular/http/fesm5/http.js");
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
 /* harmony import */ var _auth0_angular_jwt__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @auth0/angular-jwt */ "./node_modules/@auth0/angular-jwt/index.js");
+/* harmony import */ var _testServer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../testServer */ "./src/app/testServer.ts");
 
 
 
@@ -711,30 +721,40 @@ __webpack_require__.r(__webpack_exports__);
 
 // import { tokenNotExpired } from 'angular2-jwt';
 
+
 var AuthService = /** @class */ (function () {
     // Inject the modules into the constructor
     function AuthService(http, jwtHelper) {
         this.http = http;
         this.jwtHelper = jwtHelper;
     }
-    // Function to register to the user
-    // Here is where we actually reach into our backend API and make that post request to register
+    /**
+     * Function to register to the user
+     * Here is where we actually reach into our backend API and make that post request to register
+     * @param user json sent to local server conatining all information for users
+     */
     AuthService.prototype.registerUser = function (user) {
         // Set header values
         var headers = new _angular_http__WEBPACK_IMPORTED_MODULE_2__["Headers"]();
         headers.append('Content-Type', 'application/json');
-        // return this.http.post('http://localhost:3000/users/register', user, {headers: headers})
-        return this.http.post('users/register', user, { headers: headers })
+        return this.http.post(_testServer__WEBPACK_IMPORTED_MODULE_5__["testServer"] + 'users/register', user, { headers: headers })
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])(function (res) { return res.json(); }));
     };
+    /**
+     * Authenticate the login information for the specific users
+     * @param user json sent to local server conatining all information for authenticating existed users.
+     */
     AuthService.prototype.authenticateUser = function (user) {
         // Set header values
         var headers = new _angular_http__WEBPACK_IMPORTED_MODULE_2__["Headers"]();
         headers.append('Content-Type', 'application/json');
-        // return this.http.post('http://localhost:3000/users/authenticate', user, {headers: headers})
-        return this.http.post('users/authenticate', user, { headers: headers })
+        return this.http.post(_testServer__WEBPACK_IMPORTED_MODULE_5__["testServer"] + 'users/authenticate', user, { headers: headers })
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])(function (res) { return res.json(); }));
     };
+    /**
+     * Load the data in local storage and set it as current user
+     * Before login there should be a null user from users/nulluser
+     */
     AuthService.prototype.getProfile = function () {
         // Set header values
         var headers = new _angular_http__WEBPACK_IMPORTED_MODULE_2__["Headers"]();
@@ -742,17 +762,23 @@ var AuthService = /** @class */ (function () {
         // Use the token here
         headers.append('Authorization', this.authToken);
         headers.append('Content-Type', 'application/json');
-        // return this.http.get('http://localhost:3000/users/profile', {headers: headers})
-        return this.http.get('users/profile', { headers: headers })
+        return this.http.get(_testServer__WEBPACK_IMPORTED_MODULE_5__["testServer"] + 'users/profile', { headers: headers })
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])(function (res) { return res.json(); }));
     };
+    /**
+     * Store login information in local storage
+     * @param token the token information of authentication
+     * @param user the users information of login user
+     */
     AuthService.prototype.storeUserData = function (token, user) {
         localStorage.setItem('id_token', token);
         localStorage.setItem('user', JSON.stringify(user));
         this.authToken = token;
         this.user = user;
     };
-    // get token from local storage
+    /**
+     * Get token from local storage
+     */
     AuthService.prototype.loadToken = function () {
         var token = localStorage.getItem('id_token');
         this.authToken = token;
@@ -760,9 +786,15 @@ var AuthService = /** @class */ (function () {
     // loggedIn() {
     //   return tokenNotExpired();
     // }
+    /**
+     * Judge whether the token of login user has expired
+     */
     AuthService.prototype.isTokenExp = function () {
         return this.jwtHelper.isTokenExpired();
     };
+    /**
+     * Functionality of logout and set token and user information as null. Finally clear up the local storage
+     */
     AuthService.prototype.logout = function () {
         this.authToken = null;
         this.user = null;
@@ -799,6 +831,10 @@ __webpack_require__.r(__webpack_exports__);
 var ValidateService = /** @class */ (function () {
     function ValidateService() {
     }
+    /**
+     * To judge that whether the register information for a user is correct or not null
+     * @param user json type register information for a user
+     */
     ValidateService.prototype.validateRegister = function (user) {
         if (user.name == undefined || user.email == undefined || user.username == undefined || user.password == undefined) {
             return false;
@@ -807,6 +843,10 @@ var ValidateService = /** @class */ (function () {
             return true;
         }
     };
+    /**
+     * To judge that whether the email information is in correct type
+     * @param email email information from input
+     */
     ValidateService.prototype.validateEmail = function (email) {
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(email);
@@ -820,6 +860,24 @@ var ValidateService = /** @class */ (function () {
     return ValidateService;
 }());
 
+
+
+/***/ }),
+
+/***/ "./src/app/testServer.ts":
+/*!*******************************!*\
+  !*** ./src/app/testServer.ts ***!
+  \*******************************/
+/*! exports provided: testServer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "testServer", function() { return testServer; });
+// When in development mode, the address for Node Server could be defined exactly 
+// export const testServer = 'http://localhost:3000/';
+// For Production mode
+var testServer = '';
 
 
 /***/ }),
@@ -885,7 +943,7 @@ Object(_angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_1__["platformB
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/guozhitang/MEAN stack/MEANappDemo/angular-src/src/main.ts */"./src/main.ts");
+module.exports = __webpack_require__(/*! /Users/guozhitang/Projects/MEAN stack/MEANappDemo/angular-src/src/main.ts */"./src/main.ts");
 
 
 /***/ })

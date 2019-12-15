@@ -104,7 +104,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -221,12 +221,12 @@ var APP_BASE_HREF = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["InjectionTok
  *
  * A service that applications can use to interact with a browser's URL.
  *
- * Depending on which {@link LocationStrategy} is used, `Location` will either persist
+ * Depending on the {@link LocationStrategy} used, `Location` will either persist
  * to the URL's path or the URL's hash segment.
  *
  * @usageNotes
  *
- * It's better to use {@link Router#navigate} service to trigger route changes. Use
+ * It's better to use the {@link Router#navigate} service to trigger route changes. Use
  * `Location` only if you need to interact with or create normalized URLs outside of
  * routing.
  *
@@ -263,6 +263,10 @@ var Location = /** @class */ (function () {
     Location_1 = Location;
     /**
      * Returns the normalized URL path.
+     *
+     * @param includeHash Whether path has an anchor fragment.
+     *
+     * @returns The normalized URL path.
      */
     // TODO: vsavkin. Remove the boolean flag and always include hash once the deprecated router is
     // removed.
@@ -272,14 +276,24 @@ var Location = /** @class */ (function () {
     };
     /**
      * Normalizes the given path and compares to the current normalized path.
+     *
+     * @param path The given URL path
+     * @param query Query parameters
+     *
+     * @returns `true` if the given URL path is equal to the current normalized path, `false`
+     * otherwise.
      */
     Location.prototype.isCurrentPathEqualTo = function (path, query) {
         if (query === void 0) { query = ''; }
         return this.path() == this.normalize(path + Location_1.normalizeQueryParams(query));
     };
     /**
-     * Given a string representing a URL, returns the normalized URL path without leading or
+     * Given a string representing a URL, returns the URL path after stripping the
      * trailing slashes.
+     *
+     * @param url String representing a URL.
+     *
+     * @returns Normalized URL string.
      */
     Location.prototype.normalize = function (url) {
         return Location_1.stripTrailingSlash(_stripBaseHref(this._baseHref, _stripIndexHtml(url)));
@@ -287,8 +301,13 @@ var Location = /** @class */ (function () {
     /**
      * Given a string representing a URL, returns the platform-specific external URL path.
      * If the given URL doesn't begin with a leading slash (`'/'`), this method adds one
-     * before normalizing. This method will also add a hash if `HashLocationStrategy` is
+     * before normalizing. This method also adds a hash if `HashLocationStrategy` is
      * used, or the `APP_BASE_HREF` if the `PathLocationStrategy` is in use.
+     *
+     *
+     * @param url String representing a URL.
+     *
+     * @returns  A normalized platform-specific URL.
      */
     Location.prototype.prepareExternalUrl = function (url) {
         if (url && url[0] !== '/') {
@@ -298,8 +317,13 @@ var Location = /** @class */ (function () {
     };
     // TODO: rename this method to pushState
     /**
-     * Changes the browsers URL to the normalized version of the given URL, and pushes a
+     * Changes the browsers URL to a normalized version of the given URL, and pushes a
      * new item onto the platform's history.
+     *
+     * @param path  URL path to normalizze
+     * @param query Query parameters
+     * @param state Location history state
+     *
      */
     Location.prototype.go = function (path, query, state) {
         if (query === void 0) { query = ''; }
@@ -307,8 +331,12 @@ var Location = /** @class */ (function () {
         this._platformStrategy.pushState(state, '', path, query);
     };
     /**
-     * Changes the browsers URL to the normalized version of the given URL, and replaces
+     * Changes the browser's URL to a normalized version of the given URL, and replaces
      * the top item on the platform's history stack.
+     *
+     * @param path  URL path to normalizze
+     * @param query Query parameters
+     * @param state Location history state
      */
     Location.prototype.replaceState = function (path, query, state) {
         if (query === void 0) { query = ''; }
@@ -325,19 +353,34 @@ var Location = /** @class */ (function () {
     Location.prototype.back = function () { this._platformStrategy.back(); };
     /**
      * Subscribe to the platform's `popState` events.
+     *
+     * @param value Event that is triggered when the state history changes.
+     * @param exception The exception to throw.
+     *
+     * @returns Subscribed events.
      */
     Location.prototype.subscribe = function (onNext, onThrow, onReturn) {
         return this._subject.subscribe({ next: onNext, error: onThrow, complete: onReturn });
     };
     /**
-     * Given a string of url parameters, prepend with '?' if needed, otherwise return parameters as
-     * is.
+     * Given a string of url parameters, prepend with `?` if needed, otherwise return the
+     * parameters as is.
+     *
+     *  @param  params String of URL parameters
+     *
+     *  @returns URL parameters prepended with `?` or the parameters as is.
      */
     Location.normalizeQueryParams = function (params) {
         return params && params[0] !== '?' ? '?' + params : params;
     };
     /**
-     * Given 2 parts of a url, join them with a slash if needed.
+     * Given 2 parts of a URL, join them with a slash if needed.
+     *
+     * @param start  URL string
+     * @param end    URL string
+     *
+     *
+     * @returns Given URL strings joined with a slash, if needed.
      */
     Location.joinWithSlash = function (start, end) {
         if (start.length == 0) {
@@ -362,9 +405,14 @@ var Location = /** @class */ (function () {
         return start + '/' + end;
     };
     /**
-     * If url has a trailing slash, remove it, otherwise return url as is. This
-     * method looks for the first occurrence of either #, ?, or the end of the
-     * line as `/` characters after any of these should not be replaced.
+     * If URL has a trailing slash, remove it, otherwise return the URL as is. The
+     * method looks for the first occurrence of either `#`, `?`, or the end of the
+     * line as `/` characters and removes the trailing slash if one exists.
+     *
+     * @param url URL string
+     *
+     * @returns Returns a URL string after removing the trailing slash if one exists, otherwise
+     * returns the string as is.
      */
     Location.stripTrailingSlash = function (url) {
         var match = url.match(/#|\?|$/);
@@ -777,8 +825,9 @@ var CURRENCIES_EN = {
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * The different format styles that can be used to represent numbers.
- * Used by the function {@link getLocaleNumberFormat}.
+ * Format styles that can be used to represent numbers.
+ * @see `getLocaleNumberFormat()`.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -789,7 +838,14 @@ var NumberFormatStyle;
     NumberFormatStyle[NumberFormatStyle["Currency"] = 2] = "Currency";
     NumberFormatStyle[NumberFormatStyle["Scientific"] = 3] = "Scientific";
 })(NumberFormatStyle || (NumberFormatStyle = {}));
-/** @publicApi */
+/**
+ * Plurality cases used for translating plurals to different languages.
+ *
+ * @see `NgPlural`
+ * @see `NgPluralCase`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
+ *
+ * @publicApi */
 var Plural;
 (function (Plural) {
     Plural[Plural["Zero"] = 0] = "Zero";
@@ -800,11 +856,11 @@ var Plural;
     Plural[Plural["Other"] = 5] = "Other";
 })(Plural || (Plural = {}));
 /**
- * Some languages use two different forms of strings (standalone and format) depending on the
- * context.
- * Typically the standalone version is the nominative form of the word, and the format version is in
- * the genitive.
- * See [the CLDR website](http://cldr.unicode.org/translation/date-time) for more information.
+ * Context-dependant translation forms for strings.
+ * Typically the standalone version is for the nominative form of the word,
+ * and the format version is used for the genitive case.
+ * @see [CLDR website](http://cldr.unicode.org/translation/date-time#TOC-Stand-Alone-vs.-Format-Styles)
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -814,85 +870,143 @@ var FormStyle;
     FormStyle[FormStyle["Standalone"] = 1] = "Standalone";
 })(FormStyle || (FormStyle = {}));
 /**
- * Multiple widths are available for translations: narrow (1 character), abbreviated (3 characters),
- * wide (full length), and short (2 characters, only for days).
- *
- * For example the day `Sunday` will be:
- * - Narrow: `S`
- * - Short: `Su`
- * - Abbreviated: `Sun`
- * - Wide: `Sunday`
+ * String widths available for translations.
+ * The specific character widths are locale-specific.
+ * Examples are given for the word "Sunday" in English.
  *
  * @publicApi
  */
 var TranslationWidth;
 (function (TranslationWidth) {
+    /** 1 character for `en-US`. For example: 'S' */
     TranslationWidth[TranslationWidth["Narrow"] = 0] = "Narrow";
+    /** 3 characters for `en-US`. For example: 'Sun' */
     TranslationWidth[TranslationWidth["Abbreviated"] = 1] = "Abbreviated";
+    /** Full length for `en-US`. For example: "Sunday" */
     TranslationWidth[TranslationWidth["Wide"] = 2] = "Wide";
+    /** 2 characters for `en-US`, For example: "Su" */
     TranslationWidth[TranslationWidth["Short"] = 3] = "Short";
 })(TranslationWidth || (TranslationWidth = {}));
 /**
- * Multiple widths are available for formats: short (minimal amount of data), medium (small amount
- * of data), long (complete amount of data), full (complete amount of data and extra information).
+ * String widths available for date-time formats.
+ * The specific character widths are locale-specific.
+ * Examples are given for `en-US`.
  *
- * For example the date-time formats for the english locale will be:
- *  - `'short'`: `'M/d/yy, h:mm a'` (e.g. `6/15/15, 9:03 AM`)
- *  - `'medium'`: `'MMM d, y, h:mm:ss a'` (e.g. `Jun 15, 2015, 9:03:01 AM`)
- *  - `'long'`: `'MMMM d, y, h:mm:ss a z'` (e.g. `June 15, 2015 at 9:03:01 AM GMT+1`)
- *  - `'full'`: `'EEEE, MMMM d, y, h:mm:ss a zzzz'` (e.g. `Monday, June 15, 2015 at
- * 9:03:01 AM GMT+01:00`)
- *
+ * @see `getLocaleDateFormat()`
+ * @see `getLocaleTimeFormat()``
+ * @see `getLocaleDateTimeFormat()`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  * @publicApi
  */
 var FormatWidth;
 (function (FormatWidth) {
+    /**
+     * For `en-US`, 'M/d/yy, h:mm a'`
+     * (Example: `6/15/15, 9:03 AM`)
+     */
     FormatWidth[FormatWidth["Short"] = 0] = "Short";
+    /**
+     * For `en-US`, `'MMM d, y, h:mm:ss a'`
+     * (Example: `Jun 15, 2015, 9:03:01 AM`)
+     */
     FormatWidth[FormatWidth["Medium"] = 1] = "Medium";
+    /**
+     * For `en-US`, `'MMMM d, y, h:mm:ss a z'`
+     * (Example: `June 15, 2015 at 9:03:01 AM GMT+1`)
+     */
     FormatWidth[FormatWidth["Long"] = 2] = "Long";
+    /**
+     * For `en-US`, `'EEEE, MMMM d, y, h:mm:ss a zzzz'`
+     * (Example: `Monday, June 15, 2015 at 9:03:01 AM GMT+01:00`)
+     */
     FormatWidth[FormatWidth["Full"] = 3] = "Full";
 })(FormatWidth || (FormatWidth = {}));
 /**
- * Number symbol that can be used to replace placeholders in number patterns.
- * The placeholders are based on english values:
+ * Symbols that can be used to replace placeholders in number patterns.
+ * Examples are based on `en-US` values.
  *
- * | Name                   | Example for en-US | Meaning                                     |
- * |------------------------|-------------------|---------------------------------------------|
- * | decimal                | 2,345`.`67        | decimal separator                           |
- * | group                  | 2`,`345.67        | grouping separator, typically for thousands |
- * | plusSign               | `+`23             | the plus sign used with numbers             |
- * | minusSign              | `-`23             | the minus sign used with numbers            |
- * | percentSign            | 23.4`%`           | the percent sign (out of 100)               |
- * | perMille               | 234`‰`            | the permille sign (out of 1000)             |
- * | exponential            | 1.2`E`3           | used in computers for 1.2×10³.              |
- * | superscriptingExponent | 1.2`×`103         | human-readable format of exponential        |
- * | infinity               | `∞`               | used in +∞ and -∞.                          |
- * | nan                    | `NaN`             | "not a number".                             |
- * | timeSeparator          | 10`:`52           | symbol used between time units              |
- * | currencyDecimal        | $2,345`.`67       | decimal separator, fallback to "decimal"    |
- * | currencyGroup          | $2`,`345.67       | grouping separator, fallback to "group"     |
+ * @see `getLocaleNumberSymbol()`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
 var NumberSymbol;
 (function (NumberSymbol) {
+    /**
+     * Decimal separator.
+     * For `en-US`, the dot character.
+     * Example : 2,345`.`67
+     */
     NumberSymbol[NumberSymbol["Decimal"] = 0] = "Decimal";
+    /**
+     * Grouping separator, typically for thousands.
+     * For `en-US`, the comma character.
+     * Example: 2`,`345.67
+     */
     NumberSymbol[NumberSymbol["Group"] = 1] = "Group";
+    /**
+     * List-item separator.
+     * Example: "one, two, and three"
+     */
     NumberSymbol[NumberSymbol["List"] = 2] = "List";
+    /**
+     * Sign for percentage (out of 100).
+     * Example: 23.4%
+     */
     NumberSymbol[NumberSymbol["PercentSign"] = 3] = "PercentSign";
+    /**
+     * Sign for positive numbers.
+     * Example: +23
+     */
     NumberSymbol[NumberSymbol["PlusSign"] = 4] = "PlusSign";
+    /**
+     * Sign for negative numbers.
+     * Example: -23
+     */
     NumberSymbol[NumberSymbol["MinusSign"] = 5] = "MinusSign";
+    /**
+     * Computer notation for exponential value (n times a power of 10).
+     * Example: 1.2E3
+     */
     NumberSymbol[NumberSymbol["Exponential"] = 6] = "Exponential";
+    /**
+     * Human-readable format of exponential.
+     * Example: 1.2x103
+     */
     NumberSymbol[NumberSymbol["SuperscriptingExponent"] = 7] = "SuperscriptingExponent";
+    /**
+     * Sign for permille (out of 1000).
+     * Example: 23.4‰
+     */
     NumberSymbol[NumberSymbol["PerMille"] = 8] = "PerMille";
+    /**
+     * Infinity, can be used with plus and minus.
+     * Example: ∞, +∞, -∞
+     */
     NumberSymbol[NumberSymbol["Infinity"] = 9] = "Infinity";
+    /**
+     * Not a number.
+     * Example: NaN
+     */
     NumberSymbol[NumberSymbol["NaN"] = 10] = "NaN";
+    /**
+     * Symbol used between time units.
+     * Example: 10:52
+     */
     NumberSymbol[NumberSymbol["TimeSeparator"] = 11] = "TimeSeparator";
+    /**
+     * Decimal separator for currency values (fallback to `Decimal`).
+     * Example: $2,345.67
+     */
     NumberSymbol[NumberSymbol["CurrencyDecimal"] = 12] = "CurrencyDecimal";
+    /**
+     * Group separator for currency values (fallback to `Group`).
+     * Example: $2,345.67
+     */
     NumberSymbol[NumberSymbol["CurrencyGroup"] = 13] = "CurrencyGroup";
 })(NumberSymbol || (NumberSymbol = {}));
 /**
- * The value for each day of the week, based on the en-US locale
+ * The value for each day of the week, based on the `en-US` locale
  *
  * @publicApi
  */
@@ -907,7 +1021,11 @@ var WeekDay;
     WeekDay[WeekDay["Saturday"] = 6] = "Saturday";
 })(WeekDay || (WeekDay = {}));
 /**
- * The locale id for the chosen locale (e.g `en-GB`).
+ * Retrieves the locale ID from the currently loaded locale.
+ * The loaded locale could be, for example, a global one rather than a regional one.
+ * @param locale A locale code, such as `fr-FR`.
+ * @returns The locale code. For example, `fr`.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -915,7 +1033,13 @@ function getLocaleId(locale) {
     return findLocaleData(locale)[0 /* LocaleId */];
 }
 /**
- * Periods of the day (e.g. `[AM, PM]` for en-US).
+ * Retrieves day period strings for the given locale.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns An array of localized period strings. For example, `[AM, PM]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -926,7 +1050,14 @@ function getLocaleDayPeriods(locale, formStyle, width) {
     return getLastDefinedValue(amPm, width);
 }
 /**
- * Days of the week for the Gregorian calendar (e.g. `[Sunday, Monday, ... Saturday]` for en-US).
+ * Retrieves days of the week for the given locale, using the Gregorian calendar.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns An array of localized name strings.
+ * For example,`[Sunday, Monday, ... Saturday]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -937,7 +1068,14 @@ function getLocaleDayNames(locale, formStyle, width) {
     return getLastDefinedValue(days, width);
 }
 /**
- * Months of the year for the Gregorian calendar (e.g. `[January, February, ...]` for en-US).
+ * Retrieves months of the year for the given locale, using the Gregorian calendar.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns An array of localized name strings.
+ * For example,  `[January, February, ...]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -948,7 +1086,14 @@ function getLocaleMonthNames(locale, formStyle, width) {
     return getLastDefinedValue(months, width);
 }
 /**
- * Eras for the Gregorian calendar (e.g. AD/BC).
+ * Retrieves Gregorian-calendar eras for the given locale.
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+
+ * @returns An array of localized era strings.
+ * For example, `[AD, BC]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -958,8 +1103,13 @@ function getLocaleEraNames(locale, width) {
     return getLastDefinedValue(erasData, width);
 }
 /**
- * First day of the week for this locale, based on english days (Sunday = 0, Monday = 1, ...).
- * For example in french the value would be 1 because the first day of the week is Monday.
+ * Retrieves the first day of the week for the given locale.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns A day index number, using the 0-based week-day index for `en-US`
+ * (Sunday = 0, Monday = 1, ...).
+ * For example, for `fr-FR`, returns 1 to indicate that the first day is Monday.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -968,9 +1118,11 @@ function getLocaleFirstDayOfWeek(locale) {
     return data[8 /* FirstDayOfWeek */];
 }
 /**
- * Range of days in the week that represent the week-end for this locale, based on english days
- * (Sunday = 0, Monday = 1, ...).
- * For example in english the value would be [6,0] for Saturday to Sunday.
+ * Range of week days that are considered the week-end for the given locale.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The range of day values, `[startDay, endDay]`.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -979,27 +1131,13 @@ function getLocaleWeekEndRange(locale) {
     return data[9 /* WeekendRange */];
 }
 /**
- * Date format that depends on the locale.
+ * Retrieves a localized date-value formating string.
  *
- * There are four basic date formats:
- * - `full` should contain long-weekday (EEEE), year (y), long-month (MMMM), day (d).
- *
- *  For example, English uses `EEEE, MMMM d, y`, corresponding to a date like
- *  "Tuesday, September 14, 1999".
- *
- * - `long` should contain year, long-month, day.
- *
- *  For example, `MMMM d, y`, corresponding to a date like "September 14, 1999".
- *
- * - `medium` should contain year, abbreviated-month (MMM), day.
- *
- *  For example, `MMM d, y`, corresponding to a date like "Sep 14, 1999".
- *  For languages that do not use abbreviated months, use the numeric month (MM/M). For example,
- *  `y/MM/dd`, corresponding to a date like "1999/09/14".
- *
- * - `short` should contain year, numeric-month (MM/M), and day.
- *
- *  For example, `M/d/yy`, corresponding to a date like "9/14/99".
+ * @param locale A locale code for the locale format rules to use.
+ * @param width The format type.
+ * @returns The localized formating string.
+ * @see `FormatWidth`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1008,23 +1146,14 @@ function getLocaleDateFormat(locale, width) {
     return getLastDefinedValue(data[10 /* DateFormat */], width);
 }
 /**
- * Time format that depends on the locale.
+ * Retrieves a localized time-value formatting string.
  *
- * The standard formats include four basic time formats:
- * - `full` should contain hour (h/H), minute (mm), second (ss), and zone (zzzz).
- * - `long` should contain hour, minute, second, and zone (z)
- * - `medium` should contain hour, minute, second.
- * - `short` should contain hour, minute.
- *
- * Note: The patterns depend on whether the main country using your language uses 12-hour time or
- * not:
- * - For 12-hour time, use a pattern like `hh:mm a` using h to mean a 12-hour clock cycle running
- * 1 through 12 (midnight plus 1 minute is 12:01), or using K to mean a 12-hour clock cycle
- * running 0 through 11 (midnight plus 1 minute is 0:01).
- * - For 24-hour time, use a pattern like `HH:mm` using H to mean a 24-hour clock cycle running 0
- * through 23 (midnight plus 1 minute is 0:01), or using k to mean a 24-hour clock cycle running
- * 1 through 24 (midnight plus 1 minute is 24:01).
- *
+ * @param locale A locale code for the locale format rules to use.
+ * @param width The format type.
+ * @returns The localized formatting string.
+ * @see `FormatWidth`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
+
  * @publicApi
  */
 function getLocaleTimeFormat(locale, width) {
@@ -1032,27 +1161,13 @@ function getLocaleTimeFormat(locale, width) {
     return getLastDefinedValue(data[11 /* TimeFormat */], width);
 }
 /**
- * Date-time format that depends on the locale.
+ * Retrieves a localized date-time formatting string.
  *
- * The date-time pattern shows how to combine separate patterns for date (represented by {1})
- * and time (represented by {0}) into a single pattern. It usually doesn't need to be changed.
- * What you want to pay attention to are:
- * - possibly removing a space for languages that don't use it, such as many East Asian languages
- * - possibly adding a comma, other punctuation, or a combining word
- *
- * For example:
- * - English uses `{1} 'at' {0}` or `{1}, {0}` (depending on date style), while Japanese uses
- *  `{1}{0}`.
- * - An English formatted date-time using the combining pattern `{1}, {0}` could be
- *  `Dec 10, 2010, 3:59:49 PM`. Notice the comma and space between the date portion and the time
- *  portion.
- *
- * There are four formats (`full`, `long`, `medium`, `short`); the determination of which to use
- * is normally based on the date style. For example, if the date has a full month and weekday
- * name, the full combining pattern will be used to combine that with a time. If the date has
- * numeric month, the short version of the combining pattern will be used to combine that with a
- * time. English uses `{1} 'at' {0}` for full and long styles, and `{1}, {0}` for medium and short
- * styles.
+ * @param locale A locale code for the locale format rules to use.
+ * @param width The format type.
+ * @returns The localized formatting string.
+ * @see `FormatWidth`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1062,8 +1177,12 @@ function getLocaleDateTimeFormat(locale, width) {
     return getLastDefinedValue(dateTimeFormatData, width);
 }
 /**
- * Number symbol that can be used to replace placeholders in number formats.
- * See {@link NumberSymbol} for more information.
+ * Retrieves a localized number symbol that can be used to replace placeholders in number formats.
+ * @param locale The locale code.
+ * @param symbol The symbol to localize.
+ * @returns The character for the localized symbol.
+ * @see `NumberSymbol`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1081,17 +1200,17 @@ function getLocaleNumberSymbol(locale, symbol) {
     return res;
 }
 /**
- * Number format that depends on the locale.
+ * Retrieves a number format for a given locale.
  *
  * Numbers are formatted using patterns, like `#,###.00`. For example, the pattern `#,###.00`
- * when used to format the number 12345.678 could result in "12'345,67". That would happen if the
+ * when used to format the number 12345.678 could result in "12'345,678". That would happen if the
  * grouping separator for your language is an apostrophe, and the decimal separator is a comma.
  *
- * <b>Important:</b> The characters `.` `,` `0` `#` (and others below) are special placeholders;
- * they stand for the decimal separator, and so on, and are NOT real characters.
- * You must NOT "translate" the placeholders; for example, don't change `.` to `,` even though in
+ * <b>Important:</b> The characters `.` `,` `0` `#` (and others below) are special placeholders
+ * that stand for the decimal separator, and so on, and are NOT real characters.
+ * You must NOT "translate" the placeholders. For example, don't change `.` to `,` even though in
  * your language the decimal point is written with a comma. The symbols should be replaced by the
- * local equivalents, using the Number Symbols for your language.
+ * local equivalents, using the appropriate `NumberSymbol` for your language.
  *
  * Here are the special characters used in number patterns:
  *
@@ -1101,13 +1220,17 @@ function getLocaleNumberSymbol(locale, symbol) {
  * | , | Replaced by the "grouping" (thousands) separator. |
  * | 0 | Replaced by a digit (or zero if there aren't enough digits). |
  * | # | Replaced by a digit (or nothing if there aren't enough). |
- * | ¤ | This will be replaced by a currency symbol, such as $ or USD. |
- * | % | This marks a percent format. The % symbol may change position, but must be retained. |
- * | E | This marks a scientific format. The E symbol may change position, but must be retained. |
+ * | ¤ | Replaced by a currency symbol, such as $ or USD. |
+ * | % | Marks a percent format. The % symbol may change position, but must be retained. |
+ * | E | Marks a scientific format. The E symbol may change position, but must be retained. |
  * | ' | Special characters used as literal characters are quoted with ASCII single quotes. |
  *
- * You can find more information
- * [on the CLDR website](http://cldr.unicode.org/translation/number-patterns)
+ * @param locale A locale code for the locale format rules to use.
+ * @param type The type of numeric value to be formatted (such as `Decimal` or `Currency`.)
+ * @returns The localized format string.
+ * @see `NumberFormatStyle`
+ * @see [CLDR website](http://cldr.unicode.org/translation/number-patterns)
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1116,9 +1239,13 @@ function getLocaleNumberFormat(locale, type) {
     return data[14 /* NumberFormats */][type];
 }
 /**
- * The symbol used to represent the currency for the main country using this locale (e.g. $ for
- * the locale en-US).
- * The symbol will be `null` if the main country cannot be determined.
+ * Retrieves the symbol used to represent the currency for the main country
+ * corresponding to a given locale. For example, '$' for `en-US`.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The localized symbol character,
+ * or `null` if the main country cannot be determined.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1127,9 +1254,12 @@ function getLocaleCurrencySymbol(locale) {
     return data[15 /* CurrencySymbol */] || null;
 }
 /**
- * The name of the currency for the main country using this locale (e.g. 'US Dollar' for the locale
- * en-US).
- * The name will be `null` if the main country cannot be determined.
+ * Retrieves the name of the currency for the main country corresponding
+ * to a given locale. For example, 'US Dollar' for `en-US`.
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The currency name,
+ * or `null` if the main country cannot be determined.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1138,15 +1268,22 @@ function getLocaleCurrencyName(locale) {
     return data[16 /* CurrencyName */] || null;
 }
 /**
- * Returns the currency values for the locale
+ * Retrieves the currency values for a given locale.
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The currency values.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  */
 function getLocaleCurrencies(locale) {
     var data = findLocaleData(locale);
     return data[17 /* Currencies */];
 }
 /**
- * The locale plural function used by ICU expressions to determine the plural case to use.
- * See {@link NgPlural} for more information.
+ * Retrieves the plural function used by ICU expressions to determine the plural case to use
+ * for a given locale.
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The plural function for the locale.
+ * @see `NgPlural`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1160,17 +1297,24 @@ function checkFullData(data) {
     }
 }
 /**
- * Rules used to determine which day period to use (See `dayPeriods` below).
- * The rules can either be an array or a single value. If it's an array, consider it as "from"
- * and "to". If it's a single value then it means that the period is only valid at this exact
- * value.
- * There is always the same number of rules as the number of day periods, which means that the
- * first rule is applied to the first day period and so on.
- * You should fallback to AM/PM when there are no rules available.
+ * Retrieves locale-specific rules used to determine which day period to use
+ * when more than one period is defined for a locale.
  *
- * Note: this is only available if you load the full locale data.
- * See the ["I18n guide"](guide/i18n#i18n-pipes) to know how to import additional locale
- * data.
+ * There is a rule for each defined day period. The
+ * first rule is applied to the first day period and so on.
+ * Fall back to AM/PM when no rules are available.
+ *
+ * A rule can specify a period as time range, or as a single time value.
+ *
+ * This functionality is only available when you have loaded the full locale data.
+ * See the ["I18n guide"](guide/i18n#i18n-pipes).
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The rules for the locale, a single time value or array of *from-time, to-time*,
+ * or null if no periods are available.
+ *
+ * @see `getLocaleExtraDayPeriods()`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1186,15 +1330,19 @@ function getLocaleExtraDayPeriodRules(locale) {
     });
 }
 /**
- * Day Periods indicate roughly how the day is broken up in different languages (e.g. morning,
- * noon, afternoon, midnight, ...).
- * You should use the function {@link getLocaleExtraDayPeriodRules} to determine which period to
- * use.
- * You should fallback to AM/PM when there are no day periods available.
+ * Retrieves locale-specific day periods, which indicate roughly how a day is broken up
+ * in different languages.
+ * For example, for `en-US`, periods are morning, noon, afternoon, evening, and midnight.
  *
- * Note: this is only available if you load the full locale data.
- * See the ["I18n guide"](guide/i18n#i18n-pipes) to know how to import additional locale
- * data.
+ * This functionality is only available when you have loaded the full locale data.
+ * See the ["I18n guide"](guide/i18n#i18n-pipes).
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns The translated day-period strings.
+ * @see `getLocaleExtraDayPeriodRules()`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1209,11 +1357,15 @@ function getLocaleExtraDayPeriods(locale, formStyle, width) {
     return getLastDefinedValue(dayPeriods, width) || [];
 }
 /**
- * Returns the first value that is defined in an array, going backwards.
+ * Retrieves the first value that is defined in an array, going backwards from an index position.
  *
- * To avoid repeating the same data (e.g. when "format" and "standalone" are the same) we only
- * add the first one to the locale data arrays, the other ones are only defined when different.
- * We use this function to retrieve the first defined value.
+ * To avoid repeating the same data (as when the "format" and "standalone" forms are the same)
+ * add the first value to the locale data arrays, and add other values only if they are different.
+ *
+ * @param data The data array to retrieve from.
+ * @param index A 0-based index into the array to start from.
+ * @returns The value immediately before the given index position.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1226,14 +1378,18 @@ function getLastDefinedValue(data, index) {
     throw new Error('Locale data API: locale data undefined');
 }
 /**
- * Extract the hours and minutes from a string like "15:45"
+ * Extracts the hours and minutes from a string like "15:45"
  */
 function extractTime(time) {
     var _a = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__read"])(time.split(':'), 2), h = _a[0], m = _a[1];
     return { hours: +h, minutes: +m };
 }
 /**
- * Finds the locale data for a locale id
+ * Finds the locale data for a given locale.
+ *
+ * @param locale The locale code.
+ * @returns The locale data.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1255,9 +1411,17 @@ function findLocaleData(locale) {
     throw new Error("Missing locale data for the locale \"" + locale + "\".");
 }
 /**
- * Returns the currency symbol for a given currency code, or the code if no symbol available
- * (e.g.: format narrow = $, format wide = US$, code = USD)
- * If no locale is provided, it uses the locale "en" by default
+ * Retrieves the currency symbol for a given currency code.
+ *
+ * For example, for the default `en-US` locale, the code `USD` can
+ * be represented by the narrow symbol `$` or the wide symbol `US$`.
+ *
+ * @param code The currency code.
+ * @param format The format, `wide` or `narrow`.
+ * @param locale A locale code for the locale format rules to use.
+ *
+ * @returns The symbol, or the currency code if no symbol is available.0
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1273,8 +1437,12 @@ function getCurrencySymbol(code, format, locale) {
 // Most currencies have cents, that's why the default is 2
 var DEFAULT_NB_OF_CURRENCY_DIGITS = 2;
 /**
- * Returns the number of decimal digits for the given currency.
- * Its value depends upon the presence of cents in that particular currency.
+ * Reports the number of decimal digits for a given currency.
+ * The value depends upon the presence of cents in that particular currency.
+ *
+ * @param code The currency code.
+ * @returns The number of decimal digits, typically 0 or 2.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1329,17 +1497,18 @@ var TranslationType;
  *
  * Formats a date according to locale rules.
  *
- * Where:
- * - `value` is a Date, a number (milliseconds since UTC epoch) or an ISO string
- *   (https://www.w3.org/TR/NOTE-datetime).
- * - `format` indicates which date/time components to include. See {@link DatePipe} for more
- *   details.
- * - `locale` is a `string` defining the locale to use.
- * - `timezone` to be used for formatting. It understands UTC/GMT and the continental US time zone
- *   abbreviations, but for general use, use a time zone offset (e.g. `'+0430'`).
- *   If not specified, host system settings are used.
+ * @param value The date to format, as a Date, or a number (milliseconds since UTC epoch)
+ * or an [ISO date-time string](https://www.w3.org/TR/NOTE-datetime).
+ * @param format The date-time components to include. See `DatePipe` for details.
+ * @param locale A locale code for the locale format rules to use.
+ * @param timezone The time zone. A time zone offset from GMT (such as `'+0430'`),
+ * or a standard UTC/GMT or continental US time zone abbreviation.
+ * If not specified, uses host system settings.
  *
- * See {@link DatePipe} for more details.
+ * @returns The formatted date string.
+ *
+ * @see `DatePipe`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -1961,7 +2130,7 @@ var DIGIT_CHAR = '#';
 var CURRENCY_CHAR = '¤';
 var PERCENT_CHAR = '%';
 /**
- * Transforms a number to a locale string based on a style and a format
+ * Transforms a number to a locale string based on a style and a format.
  */
 function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimalSymbol, digitsInfo, isPercent) {
     if (isPercent === void 0) { isPercent = false; }
@@ -2055,15 +2224,21 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
  *
  * Formats a number as currency using locale rules.
  *
- * Use `currency` to format a number as currency.
+ * @param value The number to format.
+ * @param locale A locale code for the locale format rules to use.
+ * @param currency A string containing the currency symbol or its name,
+ * such as "$" or "Canadian Dollar". Used in output string, but does not affect the operation
+ * of the function.
+ * @param currencyCode The [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
+ * currency code to use in the result string, such as `USD` for the US dollar and `EUR` for the euro.
+ * @param digitInfo Decimal representation options, specified by a string in the following format:
+ * `{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}`. See `DecimalPipe` for more details.
  *
- * Where:
- * - `value` is a number.
- * - `locale` is a `string` defining the locale to use.
- * - `currency` is the string that represents the currency, it can be its symbol or its name.
- * - `currencyCode` is the [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code, such
- *    as `USD` for the US dollar and `EUR` for the euro.
- * - `digitInfo` See {@link DecimalPipe} for more details.
+ * @returns The formatted currency value.
+ *
+ * @see `formatNumber()`
+ * @see `DecimalPipe`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -2084,12 +2259,18 @@ function formatCurrency(value, locale, currency, currencyCode, digitsInfo) {
  *
  * Formats a number as a percentage according to locale rules.
  *
- * Where:
- * - `value` is a number.
- * - `locale` is a `string` defining the locale to use.
- * - `digitInfo` See {@link DecimalPipe} for more details.
+ * @param value The number to format.
+ * @param locale A locale code for the locale format rules to use.
+ * @param digitInfo Decimal representation options, specified by a string in the following format:
+ * `{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}`. See `DecimalPipe` for more details.
  *
+ * @returns The formatted percentage value.
+ *
+ * @see `formatNumber()`
+ * @see `DecimalPipe`
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  * @publicApi
+ *
  */
 function formatPercent(value, locale, digitsInfo) {
     var format = getLocaleNumberFormat(locale, NumberFormatStyle.Percent);
@@ -2101,13 +2282,16 @@ function formatPercent(value, locale, digitsInfo) {
  * @ngModule CommonModule
  * @description
  *
- * Formats a number as text. Group sizing and separator and other locale-specific
- * configurations are based on the locale.
+ * Formats a number as text, with group sizing, separator, and other
+ * parameters based on the locale.
  *
- * Where:
- * - `value` is a number.
- * - `locale` is a `string` defining the locale to use.
- * - `digitInfo` See {@link DecimalPipe} for more details.
+ * @param value The number to format.
+ * @param locale A locale code for the locale format rules to use.
+ * @param digitInfo Decimal representation options, specified by a string in the following format:
+ * `{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}`. See `DecimalPipe` for more details.
+ *
+ * @returns The formatted text string.
+ * @see [Internationalization (i18n) Guide](https://angular.io/guide/i18n)
  *
  * @publicApi
  */
@@ -5891,7 +6075,7 @@ function isPlatformWorkerUi(platformId) {
 /**
  * @publicApi
  */
-var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["Version"]('7.2.10');
+var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["Version"]('7.2.15');
 
 /**
  * @license
@@ -5911,16 +6095,20 @@ var ViewportScroller = /** @class */ (function () {
     // De-sugared tree-shakable injection
     // See #23917
     /** @nocollapse */
-    ViewportScroller.ngInjectableDef = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["defineInjectable"])({ providedIn: 'root', factory: function () { return new BrowserViewportScroller(Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["inject"])(DOCUMENT), window); } });
+    ViewportScroller.ngInjectableDef = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["defineInjectable"])({
+        providedIn: 'root',
+        factory: function () { return new BrowserViewportScroller(Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["inject"])(DOCUMENT), window, Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["inject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ErrorHandler"])); }
+    });
     return ViewportScroller;
 }());
 /**
  * Manages the scroll position for a browser window.
  */
 var BrowserViewportScroller = /** @class */ (function () {
-    function BrowserViewportScroller(document, window) {
+    function BrowserViewportScroller(document, window, errorHandler) {
         this.document = document;
         this.window = window;
+        this.errorHandler = errorHandler;
         this.offset = function () { return [0, 0]; };
     }
     /**
@@ -5964,15 +6152,28 @@ var BrowserViewportScroller = /** @class */ (function () {
      */
     BrowserViewportScroller.prototype.scrollToAnchor = function (anchor) {
         if (this.supportScrollRestoration()) {
-            var elSelectedById = this.document.querySelector("#" + anchor);
-            if (elSelectedById) {
-                this.scrollToElement(elSelectedById);
-                return;
+            // Escape anything passed to `querySelector` as it can throw errors and stop the application
+            // from working if invalid values are passed.
+            if (this.window.CSS && this.window.CSS.escape) {
+                anchor = this.window.CSS.escape(anchor);
             }
-            var elSelectedByName = this.document.querySelector("[name='" + anchor + "']");
-            if (elSelectedByName) {
-                this.scrollToElement(elSelectedByName);
-                return;
+            else {
+                anchor = anchor.replace(/(\"|\'\ |:|\.|\[|\]|,|=)/g, '\\$1');
+            }
+            try {
+                var elSelectedById = this.document.querySelector("#" + anchor);
+                if (elSelectedById) {
+                    this.scrollToElement(elSelectedById);
+                    return;
+                }
+                var elSelectedByName = this.document.querySelector("[name='" + anchor + "']");
+                if (elSelectedByName) {
+                    this.scrollToElement(elSelectedByName);
+                    return;
+                }
+            }
+            catch (e) {
+                this.errorHandler.handleError(e);
             }
         }
     };
@@ -6122,7 +6323,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
 /* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm5/common.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -6412,8 +6613,10 @@ var HttpHeaders = /** @class */ (function () {
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * A `HttpParameterCodec` that uses `encodeURIComponent` and `decodeURIComponent` to
- * serialize and parse URL parameter keys and values.
+ * A class that uses `encodeURIComponent` and `decodeURIComponent` to
+ * serialize and parse URL parameter keys and values. If you pass URL query parameters
+ * without encoding, the query parameters can get misinterpreted at the receiving end.
+ * Use the `HttpParameterCodec` class to encode and decode the query-string values.
  *
  * @publicApi
  */
@@ -6586,7 +6789,7 @@ var HttpParams = /** @class */ (function () {
                         }
                 }
             });
-            this.cloneFrom = null;
+            this.cloneFrom = this.updates = null;
         }
     };
     return HttpParams;
@@ -8434,7 +8637,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "R3BoundTarget", function() { return R3BoundTarget; });
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -13419,7 +13622,7 @@ function assertArrayOfStrings(identifier, value) {
         }
     }
 }
-var INTERPOLATION_BLACKLIST_REGEXPS = [
+var UNUSABLE_INTERPOLATION_REGEXPS = [
     /^\s*$/,
     /[<>]/,
     /^[{}]$/,
@@ -13433,8 +13636,8 @@ function assertInterpolationSymbols(identifier, value) {
     else if (value != null) {
         var start_1 = value[0];
         var end_1 = value[1];
-        // black list checking
-        INTERPOLATION_BLACKLIST_REGEXPS.forEach(function (regexp) {
+        // Check for unusable interpolation symbols
+        UNUSABLE_INTERPOLATION_REGEXPS.forEach(function (regexp) {
             if (regexp.test(start_1) || regexp.test(end_1)) {
                 throw new Error("['" + start_1 + "', '" + end_1 + "'] contains unusable interpolation symbol.");
             }
@@ -20271,9 +20474,9 @@ var DomElementSchemaRegistry = /** @class */ (function (_super) {
      * Tag and property name are statically known and cannot change at runtime, i.e. it is not
      * possible to bind a value into a changing attribute or tag name.
      *
-     * The filtering is white list based. All attributes in the schema above are assumed to have the
-     * 'NONE' security context, i.e. that they are safe inert string values. Only specific well known
-     * attack vectors are assigned their appropriate context.
+     * The filtering is based on a list of allowed tags|attributes. All attributes in the schema
+     * above are assumed to have the 'NONE' security context, i.e. that they are safe inert
+     * string values. Only specific well known attack vectors are assigned their appropriate context.
      */
     DomElementSchemaRegistry.prototype.securityContext = function (tagName, propName, isAttribute) {
         if (isAttribute) {
@@ -24201,7 +24404,7 @@ function publishFacade(global) {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-var VERSION$1 = new Version('7.2.10');
+var VERSION$1 = new Version('7.2.15');
 
 /**
  * @license
@@ -35919,7 +36122,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -36375,6 +36578,7 @@ var ChangeDetectionStrategy;
      * Use the `CheckOnce` strategy, meaning that automatic change detection is deactivated
      * until reactivated by setting the strategy to `Default` (`CheckAlways`).
      * Change detection can still be explicitly invoked.
+     * This strategy applies to all child directives and cannot be overridden.
      */
     ChangeDetectionStrategy[ChangeDetectionStrategy["OnPush"] = 0] = "OnPush";
     /**
@@ -46663,7 +46867,7 @@ var Version = /** @class */ (function () {
 /**
  * @publicApi
  */
-var VERSION = new Version('7.2.10');
+var VERSION = new Version('7.2.15');
 
 /**
  * @license
@@ -47099,7 +47303,7 @@ function isDOMParserAvailable() {
  * execution if used in URL context within a HTML document. Specifically, this
  * regular expression matches if (comment from here on and regex copied from
  * Soy's EscapingConventions):
- * (1) Either a protocol in a whitelist (http, https, mailto or ftp).
+ * (1) Either an allowed protocol (http, https, mailto or ftp).
  * (2) or no protocol.  A protocol must be followed by a colon. The below
  *     allows that by allowing colons only after one of the characters [/?#].
  *     A colon after a hash (#) must be in the fragment.
@@ -60497,7 +60701,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
 /* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -67019,7 +67223,7 @@ var FormBuilder = /** @class */ (function () {
 /**
  * @publicApi
  */
-var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["Version"]('7.2.10');
+var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["Version"]('7.2.15');
 
 /**
  * @license
@@ -67266,7 +67470,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
 /* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -69129,7 +69333,7 @@ var JsonpModule = /** @class */ (function () {
  * @deprecated see https://angular.io/guide/http
  * @publicApi
  */
-var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["Version"]('7.2.10');
+var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["Version"]('7.2.15');
 
 /**
  * @license
@@ -69190,7 +69394,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm5/common.js");
 /* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -69627,7 +69831,7 @@ var CachedResourceLoader = /** @class */ (function (_super) {
 /**
  * @publicApi
  */
-var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["Version"]('7.2.10');
+var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["Version"]('7.2.15');
 
 /**
  * @license
@@ -69737,7 +69941,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm5/common.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -70737,9 +70941,10 @@ function decoratePreventDefault(eventHandler) {
     };
 }
 var DomRendererFactory2 = /** @class */ (function () {
-    function DomRendererFactory2(eventManager, sharedStylesHost) {
+    function DomRendererFactory2(eventManager, sharedStylesHost, appId) {
         this.eventManager = eventManager;
         this.sharedStylesHost = sharedStylesHost;
+        this.appId = appId;
         this.rendererByCompId = new Map();
         this.defaultRenderer = new DefaultDomRenderer2(eventManager);
     }
@@ -70751,8 +70956,7 @@ var DomRendererFactory2 = /** @class */ (function () {
             case _angular_core__WEBPACK_IMPORTED_MODULE_2__["ViewEncapsulation"].Emulated: {
                 var renderer = this.rendererByCompId.get(type.id);
                 if (!renderer) {
-                    renderer =
-                        new EmulatedEncapsulationDomRenderer2(this.eventManager, this.sharedStylesHost, type);
+                    renderer = new EmulatedEncapsulationDomRenderer2(this.eventManager, this.sharedStylesHost, type, this.appId);
                     this.rendererByCompId.set(type.id, renderer);
                 }
                 renderer.applyToHost(element);
@@ -70775,7 +70979,8 @@ var DomRendererFactory2 = /** @class */ (function () {
     DomRendererFactory2.prototype.end = function () { };
     DomRendererFactory2 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_2__["Injectable"])(),
-        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [EventManager, DomSharedStylesHost])
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__param"])(2, Object(_angular_core__WEBPACK_IMPORTED_MODULE_2__["Inject"])(_angular_core__WEBPACK_IMPORTED_MODULE_2__["APP_ID"])),
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [EventManager, DomSharedStylesHost, String])
     ], DomRendererFactory2);
     return DomRendererFactory2;
 }());
@@ -70888,13 +71093,13 @@ function checkNoSyntheticProp(name, nameKind) {
 }
 var EmulatedEncapsulationDomRenderer2 = /** @class */ (function (_super) {
     Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"])(EmulatedEncapsulationDomRenderer2, _super);
-    function EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, component) {
+    function EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, component, appId) {
         var _this = _super.call(this, eventManager) || this;
         _this.component = component;
-        var styles = flattenStyles(component.id, component.styles, []);
+        var styles = flattenStyles(appId + '-' + component.id, component.styles, []);
         sharedStylesHost.addStyles(styles);
-        _this.contentAttr = shimContentAttribute(component.id);
-        _this.hostAttr = shimHostAttribute(component.id);
+        _this.contentAttr = shimContentAttribute(appId + '-' + component.id);
+        _this.hostAttr = shimHostAttribute(appId + '-' + component.id);
         return _this;
     }
     EmulatedEncapsulationDomRenderer2.prototype.applyToHost = function (element) { _super.prototype.setAttribute.call(this, element, this.hostAttr, ''); };
@@ -71693,7 +71898,7 @@ var BROWSER_MODULE_PROVIDERS = [
     {
         provide: DomRendererFactory2,
         useClass: DomRendererFactory2,
-        deps: [EventManager, DomSharedStylesHost]
+        deps: [EventManager, DomSharedStylesHost, _angular_core__WEBPACK_IMPORTED_MODULE_2__["APP_ID"]]
     },
     { provide: _angular_core__WEBPACK_IMPORTED_MODULE_2__["RendererFactory2"], useExisting: DomRendererFactory2 },
     { provide: SharedStylesHost, useExisting: DomSharedStylesHost },
@@ -72210,7 +72415,7 @@ var By = /** @class */ (function () {
 /**
  * @publicApi
  */
-var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_2__["Version"]('7.2.10');
+var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_2__["Version"]('7.2.15');
 
 /**
  * @license
@@ -72327,7 +72532,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
 /* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
 /**
- * @license Angular v7.2.10
+ * @license Angular v7.2.15
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -73817,10 +74022,10 @@ function createEmptyStateSnapshot(urlTree, rootComponent) {
  * @Component({...})
  * class MyComponent {
  *   constructor(route: ActivatedRoute) {
- *     const id: Observable<string> = route.params.map(p => p.id);
- *     const url: Observable<string> = route.url.map(segments => segments.join(''));
+ *     const id: Observable<string> = route.params.pipe(map(p => p.id));
+ *     const url: Observable<string> = route.url.pipe(map(segments => segments.join('')));
  *     // route.data includes both `data` and `resolve`
- *     const user = route.data.map(d => d.user);
+ *     const user = route.data.pipe(map(d => d.user));
  *   }
  * }
  * ```
@@ -76144,23 +76349,23 @@ var Router = /** @class */ (function () {
         return transitions.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["filter"])(function (t) { return t.id !== 0; }), 
         // Extract URL
         Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["map"])(function (t) { return (Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, t, { extractedUrl: _this.urlHandlingStrategy.extract(t.rawUrl) })); }), 
-        // Store the Navigation object
-        Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["tap"])(function (t) {
-            _this.currentNavigation = {
-                id: t.id,
-                initialUrl: t.currentRawUrl,
-                extractedUrl: t.extractedUrl,
-                trigger: t.source,
-                extras: t.extras,
-                previousNavigation: _this.lastSuccessfulNavigation ? Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, _this.lastSuccessfulNavigation, { previousNavigation: null }) :
-                    null
-            };
-        }), 
         // Using switchMap so we cancel executing navigations when a new one comes in
         Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["switchMap"])(function (t) {
             var completed = false;
             var errored = false;
-            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(t).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["switchMap"])(function (t) {
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(t).pipe(
+            // Store the Navigation object
+            Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["tap"])(function (t) {
+                _this.currentNavigation = {
+                    id: t.id,
+                    initialUrl: t.currentRawUrl,
+                    extractedUrl: t.extractedUrl,
+                    trigger: t.source,
+                    extras: t.extras,
+                    previousNavigation: _this.lastSuccessfulNavigation ? Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, _this.lastSuccessfulNavigation, { previousNavigation: null }) :
+                        null
+                };
+            }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["switchMap"])(function (t) {
                 var urlTransition = !_this.navigated || t.extractedUrl.toString() !== _this.browserUrlTree.toString();
                 var processCurrentUrl = (_this.onSameUrlNavigation === 'reload' ? true : urlTransition) &&
                     _this.urlHandlingStrategy.shouldProcessUrl(t.rawUrl);
@@ -77785,18 +77990,32 @@ var RouterModule = /** @class */ (function () {
      * Creates a module with all the router providers and directives. It also optionally sets up an
      * application listener to perform an initial navigation.
      *
-     * Options (see `ExtraOptions`):
-     * * `enableTracing` makes the router log all its internal events to the console.
-     * * `useHash` enables the location strategy that uses the URL fragment instead of the history
+     * Configuration Options:
+     *
+     * * `enableTracing` Toggles whether the router should log all navigation events to the console.
+     * * `useHash` Enables the location strategy that uses the URL fragment instead of the history
      * API.
-     * * `initialNavigation` disables the initial navigation.
-     * * `errorHandler` provides a custom error handler.
-     * * `preloadingStrategy` configures a preloading strategy (see `PreloadAllModules`).
-     * * `onSameUrlNavigation` configures how the router handles navigation to the current URL. See
-     * `ExtraOptions` for more details.
-     * * `paramsInheritanceStrategy` defines how the router merges params, data and resolved data
-     * from parent to child routes.
-     */
+     * * `initialNavigation` Disables the initial navigation.
+     * * `errorHandler` Defines a custom error handler for failed navigations.
+     * * `preloadingStrategy` Configures a preloading strategy. See `PreloadAllModules`.
+     * * `onSameUrlNavigation` Define what the router should do if it receives a navigation request to
+     * the current URL.
+     * * `scrollPositionRestoration` Configures if the scroll position needs to be restored when
+     * navigating back.
+     * * `anchorScrolling` Configures if the router should scroll to the element when the url has a
+     * fragment.
+     * * `scrollOffset` Configures the scroll offset the router will use when scrolling to an element.
+     * * `paramsInheritanceStrategy` Defines how the router merges params, data and resolved data from
+     * parent to child routes.
+     * * `malformedUriErrorHandler` Defines a custom malformed uri error handler function. This
+     * handler is invoked when encodedURI contains invalid character sequences.
+     * * `urlUpdateStrategy` Defines when the router updates the browser URL. The default behavior is
+     * to update after successful navigation.
+     * * `relativeLinkResolution` Enables the correct relative link resolution in components with
+     * empty paths.
+     *
+     * See `ExtraOptions` for more details about the above options.
+    */
     RouterModule.forRoot = function (routes, config) {
         return {
             ngModule: RouterModule_1,
@@ -78054,7 +78273,7 @@ function provideRouterInitializer() {
 /**
  * @publicApi
  */
-var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_2__["Version"]('7.2.10');
+var VERSION = new _angular_core__WEBPACK_IMPORTED_MODULE_2__["Version"]('7.2.15');
 
 /**
  * @license
@@ -78179,8 +78398,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _jwthelper_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./jwthelper.service */ "./node_modules/@auth0/angular-jwt/src/jwthelper.service.js");
 /* harmony import */ var _jwtoptions_token__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./jwtoptions.token */ "./node_modules/@auth0/angular-jwt/src/jwtoptions.token.js");
-/* harmony import */ var rxjs_internal_observable_from__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/internal/observable/from */ "./node_modules/rxjs/internal/observable/from.js");
-/* harmony import */ var rxjs_internal_observable_from__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(rxjs_internal_observable_from__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
 /* harmony import */ var url__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! url */ "./node_modules/url/url.js");
 /* harmony import */ var url__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(url__WEBPACK_IMPORTED_MODULE_5__);
@@ -78236,9 +78454,7 @@ var JwtInterceptor = /** @class */ (function () {
         if (token && tokenIsExpired && this.skipWhenExpired) {
             request = request.clone();
         }
-        else if (token &&
-            this.isWhitelistedDomain(request) &&
-            !this.isBlacklistedRoute(request)) {
+        else if (token) {
             request = request.clone({
                 setHeaders: (_a = {},
                     _a[this.headerName] = "" + this.authScheme + token,
@@ -78250,9 +78466,13 @@ var JwtInterceptor = /** @class */ (function () {
     };
     JwtInterceptor.prototype.intercept = function (request, next) {
         var _this = this;
+        if (!this.isWhitelistedDomain(request) ||
+            this.isBlacklistedRoute(request)) {
+            return next.handle(request);
+        }
         var token = this.tokenGetter();
         if (token instanceof Promise) {
-            return Object(rxjs_internal_observable_from__WEBPACK_IMPORTED_MODULE_3__["from"])(token).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["mergeMap"])(function (asyncToken) {
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["from"])(token).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["mergeMap"])(function (asyncToken) {
                 return _this.handleInterception(asyncToken, request, next);
             }));
         }
@@ -78353,7 +78573,7 @@ var JwtHelperService = /** @class */ (function () {
     };
     JwtHelperService.prototype.decodeToken = function (token) {
         if (token === void 0) { token = this.tokenGetter(); }
-        if (token === null) {
+        if (token == null || token === '') {
             return null;
         }
         var parts = token.split('.');
@@ -78370,7 +78590,7 @@ var JwtHelperService = /** @class */ (function () {
         if (token === void 0) { token = this.tokenGetter(); }
         var decoded;
         decoded = this.decodeToken(token);
-        if (!decoded.hasOwnProperty('exp')) {
+        if (!decoded || !decoded.hasOwnProperty('exp')) {
             return null;
         }
         var date = new Date(0);
@@ -78379,7 +78599,7 @@ var JwtHelperService = /** @class */ (function () {
     };
     JwtHelperService.prototype.isTokenExpired = function (token, offsetSeconds) {
         if (token === void 0) { token = this.tokenGetter(); }
-        if (token === null || token === '') {
+        if (token == null || token === '') {
             return true;
         }
         var date = this.getTokenExpirationDate(token);
@@ -91276,1375 +91496,11 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/rxjs/internal/Observable.js":
-/*!**************************************************!*\
-  !*** ./node_modules/rxjs/internal/Observable.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var canReportError_1 = __webpack_require__(/*! ./util/canReportError */ "./node_modules/rxjs/internal/util/canReportError.js");
-var toSubscriber_1 = __webpack_require__(/*! ./util/toSubscriber */ "./node_modules/rxjs/internal/util/toSubscriber.js");
-var observable_1 = __webpack_require__(/*! ../internal/symbol/observable */ "./node_modules/rxjs/internal/symbol/observable.js");
-var pipe_1 = __webpack_require__(/*! ./util/pipe */ "./node_modules/rxjs/internal/util/pipe.js");
-var config_1 = __webpack_require__(/*! ./config */ "./node_modules/rxjs/internal/config.js");
-var Observable = (function () {
-    function Observable(subscribe) {
-        this._isScalar = false;
-        if (subscribe) {
-            this._subscribe = subscribe;
-        }
-    }
-    Observable.prototype.lift = function (operator) {
-        var observable = new Observable();
-        observable.source = this;
-        observable.operator = operator;
-        return observable;
-    };
-    Observable.prototype.subscribe = function (observerOrNext, error, complete) {
-        var operator = this.operator;
-        var sink = toSubscriber_1.toSubscriber(observerOrNext, error, complete);
-        if (operator) {
-            operator.call(sink, this.source);
-        }
-        else {
-            sink.add(this.source || (config_1.config.useDeprecatedSynchronousErrorHandling && !sink.syncErrorThrowable) ?
-                this._subscribe(sink) :
-                this._trySubscribe(sink));
-        }
-        if (config_1.config.useDeprecatedSynchronousErrorHandling) {
-            if (sink.syncErrorThrowable) {
-                sink.syncErrorThrowable = false;
-                if (sink.syncErrorThrown) {
-                    throw sink.syncErrorValue;
-                }
-            }
-        }
-        return sink;
-    };
-    Observable.prototype._trySubscribe = function (sink) {
-        try {
-            return this._subscribe(sink);
-        }
-        catch (err) {
-            if (config_1.config.useDeprecatedSynchronousErrorHandling) {
-                sink.syncErrorThrown = true;
-                sink.syncErrorValue = err;
-            }
-            if (canReportError_1.canReportError(sink)) {
-                sink.error(err);
-            }
-            else {
-                console.warn(err);
-            }
-        }
-    };
-    Observable.prototype.forEach = function (next, promiseCtor) {
-        var _this = this;
-        promiseCtor = getPromiseCtor(promiseCtor);
-        return new promiseCtor(function (resolve, reject) {
-            var subscription;
-            subscription = _this.subscribe(function (value) {
-                try {
-                    next(value);
-                }
-                catch (err) {
-                    reject(err);
-                    if (subscription) {
-                        subscription.unsubscribe();
-                    }
-                }
-            }, reject, resolve);
-        });
-    };
-    Observable.prototype._subscribe = function (subscriber) {
-        var source = this.source;
-        return source && source.subscribe(subscriber);
-    };
-    Observable.prototype[observable_1.observable] = function () {
-        return this;
-    };
-    Observable.prototype.pipe = function () {
-        var operations = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            operations[_i] = arguments[_i];
-        }
-        if (operations.length === 0) {
-            return this;
-        }
-        return pipe_1.pipeFromArray(operations)(this);
-    };
-    Observable.prototype.toPromise = function (promiseCtor) {
-        var _this = this;
-        promiseCtor = getPromiseCtor(promiseCtor);
-        return new promiseCtor(function (resolve, reject) {
-            var value;
-            _this.subscribe(function (x) { return value = x; }, function (err) { return reject(err); }, function () { return resolve(value); });
-        });
-    };
-    Observable.create = function (subscribe) {
-        return new Observable(subscribe);
-    };
-    return Observable;
-}());
-exports.Observable = Observable;
-function getPromiseCtor(promiseCtor) {
-    if (!promiseCtor) {
-        promiseCtor = config_1.config.Promise || Promise;
-    }
-    if (!promiseCtor) {
-        throw new Error('no Promise impl found');
-    }
-    return promiseCtor;
-}
-//# sourceMappingURL=Observable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/Observer.js":
-/*!************************************************!*\
-  !*** ./node_modules/rxjs/internal/Observer.js ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = __webpack_require__(/*! ./config */ "./node_modules/rxjs/internal/config.js");
-var hostReportError_1 = __webpack_require__(/*! ./util/hostReportError */ "./node_modules/rxjs/internal/util/hostReportError.js");
-exports.empty = {
-    closed: true,
-    next: function (value) { },
-    error: function (err) {
-        if (config_1.config.useDeprecatedSynchronousErrorHandling) {
-            throw err;
-        }
-        else {
-            hostReportError_1.hostReportError(err);
-        }
-    },
-    complete: function () { }
-};
-//# sourceMappingURL=Observer.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/Subscriber.js":
-/*!**************************************************!*\
-  !*** ./node_modules/rxjs/internal/Subscriber.js ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var isFunction_1 = __webpack_require__(/*! ./util/isFunction */ "./node_modules/rxjs/internal/util/isFunction.js");
-var Observer_1 = __webpack_require__(/*! ./Observer */ "./node_modules/rxjs/internal/Observer.js");
-var Subscription_1 = __webpack_require__(/*! ./Subscription */ "./node_modules/rxjs/internal/Subscription.js");
-var rxSubscriber_1 = __webpack_require__(/*! ../internal/symbol/rxSubscriber */ "./node_modules/rxjs/internal/symbol/rxSubscriber.js");
-var config_1 = __webpack_require__(/*! ./config */ "./node_modules/rxjs/internal/config.js");
-var hostReportError_1 = __webpack_require__(/*! ./util/hostReportError */ "./node_modules/rxjs/internal/util/hostReportError.js");
-var Subscriber = (function (_super) {
-    __extends(Subscriber, _super);
-    function Subscriber(destinationOrNext, error, complete) {
-        var _this = _super.call(this) || this;
-        _this.syncErrorValue = null;
-        _this.syncErrorThrown = false;
-        _this.syncErrorThrowable = false;
-        _this.isStopped = false;
-        _this._parentSubscription = null;
-        switch (arguments.length) {
-            case 0:
-                _this.destination = Observer_1.empty;
-                break;
-            case 1:
-                if (!destinationOrNext) {
-                    _this.destination = Observer_1.empty;
-                    break;
-                }
-                if (typeof destinationOrNext === 'object') {
-                    if (destinationOrNext instanceof Subscriber) {
-                        _this.syncErrorThrowable = destinationOrNext.syncErrorThrowable;
-                        _this.destination = destinationOrNext;
-                        destinationOrNext.add(_this);
-                    }
-                    else {
-                        _this.syncErrorThrowable = true;
-                        _this.destination = new SafeSubscriber(_this, destinationOrNext);
-                    }
-                    break;
-                }
-            default:
-                _this.syncErrorThrowable = true;
-                _this.destination = new SafeSubscriber(_this, destinationOrNext, error, complete);
-                break;
-        }
-        return _this;
-    }
-    Subscriber.prototype[rxSubscriber_1.rxSubscriber] = function () { return this; };
-    Subscriber.create = function (next, error, complete) {
-        var subscriber = new Subscriber(next, error, complete);
-        subscriber.syncErrorThrowable = false;
-        return subscriber;
-    };
-    Subscriber.prototype.next = function (value) {
-        if (!this.isStopped) {
-            this._next(value);
-        }
-    };
-    Subscriber.prototype.error = function (err) {
-        if (!this.isStopped) {
-            this.isStopped = true;
-            this._error(err);
-        }
-    };
-    Subscriber.prototype.complete = function () {
-        if (!this.isStopped) {
-            this.isStopped = true;
-            this._complete();
-        }
-    };
-    Subscriber.prototype.unsubscribe = function () {
-        if (this.closed) {
-            return;
-        }
-        this.isStopped = true;
-        _super.prototype.unsubscribe.call(this);
-    };
-    Subscriber.prototype._next = function (value) {
-        this.destination.next(value);
-    };
-    Subscriber.prototype._error = function (err) {
-        this.destination.error(err);
-        this.unsubscribe();
-    };
-    Subscriber.prototype._complete = function () {
-        this.destination.complete();
-        this.unsubscribe();
-    };
-    Subscriber.prototype._unsubscribeAndRecycle = function () {
-        var _a = this, _parent = _a._parent, _parents = _a._parents;
-        this._parent = null;
-        this._parents = null;
-        this.unsubscribe();
-        this.closed = false;
-        this.isStopped = false;
-        this._parent = _parent;
-        this._parents = _parents;
-        this._parentSubscription = null;
-        return this;
-    };
-    return Subscriber;
-}(Subscription_1.Subscription));
-exports.Subscriber = Subscriber;
-var SafeSubscriber = (function (_super) {
-    __extends(SafeSubscriber, _super);
-    function SafeSubscriber(_parentSubscriber, observerOrNext, error, complete) {
-        var _this = _super.call(this) || this;
-        _this._parentSubscriber = _parentSubscriber;
-        var next;
-        var context = _this;
-        if (isFunction_1.isFunction(observerOrNext)) {
-            next = observerOrNext;
-        }
-        else if (observerOrNext) {
-            next = observerOrNext.next;
-            error = observerOrNext.error;
-            complete = observerOrNext.complete;
-            if (observerOrNext !== Observer_1.empty) {
-                context = Object.create(observerOrNext);
-                if (isFunction_1.isFunction(context.unsubscribe)) {
-                    _this.add(context.unsubscribe.bind(context));
-                }
-                context.unsubscribe = _this.unsubscribe.bind(_this);
-            }
-        }
-        _this._context = context;
-        _this._next = next;
-        _this._error = error;
-        _this._complete = complete;
-        return _this;
-    }
-    SafeSubscriber.prototype.next = function (value) {
-        if (!this.isStopped && this._next) {
-            var _parentSubscriber = this._parentSubscriber;
-            if (!config_1.config.useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
-                this.__tryOrUnsub(this._next, value);
-            }
-            else if (this.__tryOrSetError(_parentSubscriber, this._next, value)) {
-                this.unsubscribe();
-            }
-        }
-    };
-    SafeSubscriber.prototype.error = function (err) {
-        if (!this.isStopped) {
-            var _parentSubscriber = this._parentSubscriber;
-            var useDeprecatedSynchronousErrorHandling = config_1.config.useDeprecatedSynchronousErrorHandling;
-            if (this._error) {
-                if (!useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
-                    this.__tryOrUnsub(this._error, err);
-                    this.unsubscribe();
-                }
-                else {
-                    this.__tryOrSetError(_parentSubscriber, this._error, err);
-                    this.unsubscribe();
-                }
-            }
-            else if (!_parentSubscriber.syncErrorThrowable) {
-                this.unsubscribe();
-                if (useDeprecatedSynchronousErrorHandling) {
-                    throw err;
-                }
-                hostReportError_1.hostReportError(err);
-            }
-            else {
-                if (useDeprecatedSynchronousErrorHandling) {
-                    _parentSubscriber.syncErrorValue = err;
-                    _parentSubscriber.syncErrorThrown = true;
-                }
-                else {
-                    hostReportError_1.hostReportError(err);
-                }
-                this.unsubscribe();
-            }
-        }
-    };
-    SafeSubscriber.prototype.complete = function () {
-        var _this = this;
-        if (!this.isStopped) {
-            var _parentSubscriber = this._parentSubscriber;
-            if (this._complete) {
-                var wrappedComplete = function () { return _this._complete.call(_this._context); };
-                if (!config_1.config.useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
-                    this.__tryOrUnsub(wrappedComplete);
-                    this.unsubscribe();
-                }
-                else {
-                    this.__tryOrSetError(_parentSubscriber, wrappedComplete);
-                    this.unsubscribe();
-                }
-            }
-            else {
-                this.unsubscribe();
-            }
-        }
-    };
-    SafeSubscriber.prototype.__tryOrUnsub = function (fn, value) {
-        try {
-            fn.call(this._context, value);
-        }
-        catch (err) {
-            this.unsubscribe();
-            if (config_1.config.useDeprecatedSynchronousErrorHandling) {
-                throw err;
-            }
-            else {
-                hostReportError_1.hostReportError(err);
-            }
-        }
-    };
-    SafeSubscriber.prototype.__tryOrSetError = function (parent, fn, value) {
-        if (!config_1.config.useDeprecatedSynchronousErrorHandling) {
-            throw new Error('bad call');
-        }
-        try {
-            fn.call(this._context, value);
-        }
-        catch (err) {
-            if (config_1.config.useDeprecatedSynchronousErrorHandling) {
-                parent.syncErrorValue = err;
-                parent.syncErrorThrown = true;
-                return true;
-            }
-            else {
-                hostReportError_1.hostReportError(err);
-                return true;
-            }
-        }
-        return false;
-    };
-    SafeSubscriber.prototype._unsubscribe = function () {
-        var _parentSubscriber = this._parentSubscriber;
-        this._context = null;
-        this._parentSubscriber = null;
-        _parentSubscriber.unsubscribe();
-    };
-    return SafeSubscriber;
-}(Subscriber));
-exports.SafeSubscriber = SafeSubscriber;
-//# sourceMappingURL=Subscriber.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/Subscription.js":
-/*!****************************************************!*\
-  !*** ./node_modules/rxjs/internal/Subscription.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var isArray_1 = __webpack_require__(/*! ./util/isArray */ "./node_modules/rxjs/internal/util/isArray.js");
-var isObject_1 = __webpack_require__(/*! ./util/isObject */ "./node_modules/rxjs/internal/util/isObject.js");
-var isFunction_1 = __webpack_require__(/*! ./util/isFunction */ "./node_modules/rxjs/internal/util/isFunction.js");
-var tryCatch_1 = __webpack_require__(/*! ./util/tryCatch */ "./node_modules/rxjs/internal/util/tryCatch.js");
-var errorObject_1 = __webpack_require__(/*! ./util/errorObject */ "./node_modules/rxjs/internal/util/errorObject.js");
-var UnsubscriptionError_1 = __webpack_require__(/*! ./util/UnsubscriptionError */ "./node_modules/rxjs/internal/util/UnsubscriptionError.js");
-var Subscription = (function () {
-    function Subscription(unsubscribe) {
-        this.closed = false;
-        this._parent = null;
-        this._parents = null;
-        this._subscriptions = null;
-        if (unsubscribe) {
-            this._unsubscribe = unsubscribe;
-        }
-    }
-    Subscription.prototype.unsubscribe = function () {
-        var hasErrors = false;
-        var errors;
-        if (this.closed) {
-            return;
-        }
-        var _a = this, _parent = _a._parent, _parents = _a._parents, _unsubscribe = _a._unsubscribe, _subscriptions = _a._subscriptions;
-        this.closed = true;
-        this._parent = null;
-        this._parents = null;
-        this._subscriptions = null;
-        var index = -1;
-        var len = _parents ? _parents.length : 0;
-        while (_parent) {
-            _parent.remove(this);
-            _parent = ++index < len && _parents[index] || null;
-        }
-        if (isFunction_1.isFunction(_unsubscribe)) {
-            var trial = tryCatch_1.tryCatch(_unsubscribe).call(this);
-            if (trial === errorObject_1.errorObject) {
-                hasErrors = true;
-                errors = errors || (errorObject_1.errorObject.e instanceof UnsubscriptionError_1.UnsubscriptionError ?
-                    flattenUnsubscriptionErrors(errorObject_1.errorObject.e.errors) : [errorObject_1.errorObject.e]);
-            }
-        }
-        if (isArray_1.isArray(_subscriptions)) {
-            index = -1;
-            len = _subscriptions.length;
-            while (++index < len) {
-                var sub = _subscriptions[index];
-                if (isObject_1.isObject(sub)) {
-                    var trial = tryCatch_1.tryCatch(sub.unsubscribe).call(sub);
-                    if (trial === errorObject_1.errorObject) {
-                        hasErrors = true;
-                        errors = errors || [];
-                        var err = errorObject_1.errorObject.e;
-                        if (err instanceof UnsubscriptionError_1.UnsubscriptionError) {
-                            errors = errors.concat(flattenUnsubscriptionErrors(err.errors));
-                        }
-                        else {
-                            errors.push(err);
-                        }
-                    }
-                }
-            }
-        }
-        if (hasErrors) {
-            throw new UnsubscriptionError_1.UnsubscriptionError(errors);
-        }
-    };
-    Subscription.prototype.add = function (teardown) {
-        if (!teardown || (teardown === Subscription.EMPTY)) {
-            return Subscription.EMPTY;
-        }
-        if (teardown === this) {
-            return this;
-        }
-        var subscription = teardown;
-        switch (typeof teardown) {
-            case 'function':
-                subscription = new Subscription(teardown);
-            case 'object':
-                if (subscription.closed || typeof subscription.unsubscribe !== 'function') {
-                    return subscription;
-                }
-                else if (this.closed) {
-                    subscription.unsubscribe();
-                    return subscription;
-                }
-                else if (typeof subscription._addParent !== 'function') {
-                    var tmp = subscription;
-                    subscription = new Subscription();
-                    subscription._subscriptions = [tmp];
-                }
-                break;
-            default:
-                throw new Error('unrecognized teardown ' + teardown + ' added to Subscription.');
-        }
-        var subscriptions = this._subscriptions || (this._subscriptions = []);
-        subscriptions.push(subscription);
-        subscription._addParent(this);
-        return subscription;
-    };
-    Subscription.prototype.remove = function (subscription) {
-        var subscriptions = this._subscriptions;
-        if (subscriptions) {
-            var subscriptionIndex = subscriptions.indexOf(subscription);
-            if (subscriptionIndex !== -1) {
-                subscriptions.splice(subscriptionIndex, 1);
-            }
-        }
-    };
-    Subscription.prototype._addParent = function (parent) {
-        var _a = this, _parent = _a._parent, _parents = _a._parents;
-        if (!_parent || _parent === parent) {
-            this._parent = parent;
-        }
-        else if (!_parents) {
-            this._parents = [parent];
-        }
-        else if (_parents.indexOf(parent) === -1) {
-            _parents.push(parent);
-        }
-    };
-    Subscription.EMPTY = (function (empty) {
-        empty.closed = true;
-        return empty;
-    }(new Subscription()));
-    return Subscription;
-}());
-exports.Subscription = Subscription;
-function flattenUnsubscriptionErrors(errors) {
-    return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError_1.UnsubscriptionError) ? err.errors : err); }, []);
-}
-//# sourceMappingURL=Subscription.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/config.js":
-/*!**********************************************!*\
-  !*** ./node_modules/rxjs/internal/config.js ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var _enable_super_gross_mode_that_will_cause_bad_things = false;
-exports.config = {
-    Promise: undefined,
-    set useDeprecatedSynchronousErrorHandling(value) {
-        if (value) {
-            var error = new Error();
-            console.warn('DEPRECATED! RxJS was set to use deprecated synchronous error handling behavior by code at: \n' + error.stack);
-        }
-        else if (_enable_super_gross_mode_that_will_cause_bad_things) {
-            console.log('RxJS: Back to a better error behavior. Thank you. <3');
-        }
-        _enable_super_gross_mode_that_will_cause_bad_things = value;
-    },
-    get useDeprecatedSynchronousErrorHandling() {
-        return _enable_super_gross_mode_that_will_cause_bad_things;
-    },
-};
-//# sourceMappingURL=config.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/observable/from.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/rxjs/internal/observable/from.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Observable_1 = __webpack_require__(/*! ../Observable */ "./node_modules/rxjs/internal/Observable.js");
-var isPromise_1 = __webpack_require__(/*! ../util/isPromise */ "./node_modules/rxjs/internal/util/isPromise.js");
-var isArrayLike_1 = __webpack_require__(/*! ../util/isArrayLike */ "./node_modules/rxjs/internal/util/isArrayLike.js");
-var isInteropObservable_1 = __webpack_require__(/*! ../util/isInteropObservable */ "./node_modules/rxjs/internal/util/isInteropObservable.js");
-var isIterable_1 = __webpack_require__(/*! ../util/isIterable */ "./node_modules/rxjs/internal/util/isIterable.js");
-var fromArray_1 = __webpack_require__(/*! ./fromArray */ "./node_modules/rxjs/internal/observable/fromArray.js");
-var fromPromise_1 = __webpack_require__(/*! ./fromPromise */ "./node_modules/rxjs/internal/observable/fromPromise.js");
-var fromIterable_1 = __webpack_require__(/*! ./fromIterable */ "./node_modules/rxjs/internal/observable/fromIterable.js");
-var fromObservable_1 = __webpack_require__(/*! ./fromObservable */ "./node_modules/rxjs/internal/observable/fromObservable.js");
-var subscribeTo_1 = __webpack_require__(/*! ../util/subscribeTo */ "./node_modules/rxjs/internal/util/subscribeTo.js");
-function from(input, scheduler) {
-    if (!scheduler) {
-        if (input instanceof Observable_1.Observable) {
-            return input;
-        }
-        return new Observable_1.Observable(subscribeTo_1.subscribeTo(input));
-    }
-    if (input != null) {
-        if (isInteropObservable_1.isInteropObservable(input)) {
-            return fromObservable_1.fromObservable(input, scheduler);
-        }
-        else if (isPromise_1.isPromise(input)) {
-            return fromPromise_1.fromPromise(input, scheduler);
-        }
-        else if (isArrayLike_1.isArrayLike(input)) {
-            return fromArray_1.fromArray(input, scheduler);
-        }
-        else if (isIterable_1.isIterable(input) || typeof input === 'string') {
-            return fromIterable_1.fromIterable(input, scheduler);
-        }
-    }
-    throw new TypeError((input !== null && typeof input || input) + ' is not observable');
-}
-exports.from = from;
-//# sourceMappingURL=from.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/observable/fromArray.js":
-/*!************************************************************!*\
-  !*** ./node_modules/rxjs/internal/observable/fromArray.js ***!
-  \************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Observable_1 = __webpack_require__(/*! ../Observable */ "./node_modules/rxjs/internal/Observable.js");
-var Subscription_1 = __webpack_require__(/*! ../Subscription */ "./node_modules/rxjs/internal/Subscription.js");
-var subscribeToArray_1 = __webpack_require__(/*! ../util/subscribeToArray */ "./node_modules/rxjs/internal/util/subscribeToArray.js");
-function fromArray(input, scheduler) {
-    if (!scheduler) {
-        return new Observable_1.Observable(subscribeToArray_1.subscribeToArray(input));
-    }
-    else {
-        return new Observable_1.Observable(function (subscriber) {
-            var sub = new Subscription_1.Subscription();
-            var i = 0;
-            sub.add(scheduler.schedule(function () {
-                if (i === input.length) {
-                    subscriber.complete();
-                    return;
-                }
-                subscriber.next(input[i++]);
-                if (!subscriber.closed) {
-                    sub.add(this.schedule());
-                }
-            }));
-            return sub;
-        });
-    }
-}
-exports.fromArray = fromArray;
-//# sourceMappingURL=fromArray.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/observable/fromIterable.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/rxjs/internal/observable/fromIterable.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Observable_1 = __webpack_require__(/*! ../Observable */ "./node_modules/rxjs/internal/Observable.js");
-var Subscription_1 = __webpack_require__(/*! ../Subscription */ "./node_modules/rxjs/internal/Subscription.js");
-var iterator_1 = __webpack_require__(/*! ../symbol/iterator */ "./node_modules/rxjs/internal/symbol/iterator.js");
-var subscribeToIterable_1 = __webpack_require__(/*! ../util/subscribeToIterable */ "./node_modules/rxjs/internal/util/subscribeToIterable.js");
-function fromIterable(input, scheduler) {
-    if (!input) {
-        throw new Error('Iterable cannot be null');
-    }
-    if (!scheduler) {
-        return new Observable_1.Observable(subscribeToIterable_1.subscribeToIterable(input));
-    }
-    else {
-        return new Observable_1.Observable(function (subscriber) {
-            var sub = new Subscription_1.Subscription();
-            var iterator;
-            sub.add(function () {
-                if (iterator && typeof iterator.return === 'function') {
-                    iterator.return();
-                }
-            });
-            sub.add(scheduler.schedule(function () {
-                iterator = input[iterator_1.iterator]();
-                sub.add(scheduler.schedule(function () {
-                    if (subscriber.closed) {
-                        return;
-                    }
-                    var value;
-                    var done;
-                    try {
-                        var result = iterator.next();
-                        value = result.value;
-                        done = result.done;
-                    }
-                    catch (err) {
-                        subscriber.error(err);
-                        return;
-                    }
-                    if (done) {
-                        subscriber.complete();
-                    }
-                    else {
-                        subscriber.next(value);
-                        this.schedule();
-                    }
-                }));
-            }));
-            return sub;
-        });
-    }
-}
-exports.fromIterable = fromIterable;
-//# sourceMappingURL=fromIterable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/observable/fromObservable.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/rxjs/internal/observable/fromObservable.js ***!
-  \*****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Observable_1 = __webpack_require__(/*! ../Observable */ "./node_modules/rxjs/internal/Observable.js");
-var Subscription_1 = __webpack_require__(/*! ../Subscription */ "./node_modules/rxjs/internal/Subscription.js");
-var observable_1 = __webpack_require__(/*! ../symbol/observable */ "./node_modules/rxjs/internal/symbol/observable.js");
-var subscribeToObservable_1 = __webpack_require__(/*! ../util/subscribeToObservable */ "./node_modules/rxjs/internal/util/subscribeToObservable.js");
-function fromObservable(input, scheduler) {
-    if (!scheduler) {
-        return new Observable_1.Observable(subscribeToObservable_1.subscribeToObservable(input));
-    }
-    else {
-        return new Observable_1.Observable(function (subscriber) {
-            var sub = new Subscription_1.Subscription();
-            sub.add(scheduler.schedule(function () {
-                var observable = input[observable_1.observable]();
-                sub.add(observable.subscribe({
-                    next: function (value) { sub.add(scheduler.schedule(function () { return subscriber.next(value); })); },
-                    error: function (err) { sub.add(scheduler.schedule(function () { return subscriber.error(err); })); },
-                    complete: function () { sub.add(scheduler.schedule(function () { return subscriber.complete(); })); },
-                }));
-            }));
-            return sub;
-        });
-    }
-}
-exports.fromObservable = fromObservable;
-//# sourceMappingURL=fromObservable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/observable/fromPromise.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/rxjs/internal/observable/fromPromise.js ***!
-  \**************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Observable_1 = __webpack_require__(/*! ../Observable */ "./node_modules/rxjs/internal/Observable.js");
-var Subscription_1 = __webpack_require__(/*! ../Subscription */ "./node_modules/rxjs/internal/Subscription.js");
-var subscribeToPromise_1 = __webpack_require__(/*! ../util/subscribeToPromise */ "./node_modules/rxjs/internal/util/subscribeToPromise.js");
-function fromPromise(input, scheduler) {
-    if (!scheduler) {
-        return new Observable_1.Observable(subscribeToPromise_1.subscribeToPromise(input));
-    }
-    else {
-        return new Observable_1.Observable(function (subscriber) {
-            var sub = new Subscription_1.Subscription();
-            sub.add(scheduler.schedule(function () { return input.then(function (value) {
-                sub.add(scheduler.schedule(function () {
-                    subscriber.next(value);
-                    sub.add(scheduler.schedule(function () { return subscriber.complete(); }));
-                }));
-            }, function (err) {
-                sub.add(scheduler.schedule(function () { return subscriber.error(err); }));
-            }); }));
-            return sub;
-        });
-    }
-}
-exports.fromPromise = fromPromise;
-//# sourceMappingURL=fromPromise.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/symbol/iterator.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/rxjs/internal/symbol/iterator.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function getSymbolIterator() {
-    if (typeof Symbol !== 'function' || !Symbol.iterator) {
-        return '@@iterator';
-    }
-    return Symbol.iterator;
-}
-exports.getSymbolIterator = getSymbolIterator;
-exports.iterator = getSymbolIterator();
-exports.$$iterator = exports.iterator;
-//# sourceMappingURL=iterator.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/symbol/observable.js":
-/*!*********************************************************!*\
-  !*** ./node_modules/rxjs/internal/symbol/observable.js ***!
-  \*********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.observable = typeof Symbol === 'function' && Symbol.observable || '@@observable';
-//# sourceMappingURL=observable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/symbol/rxSubscriber.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/rxjs/internal/symbol/rxSubscriber.js ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.rxSubscriber = typeof Symbol === 'function'
-    ? Symbol('rxSubscriber')
-    : '@@rxSubscriber_' + Math.random();
-exports.$$rxSubscriber = exports.rxSubscriber;
-//# sourceMappingURL=rxSubscriber.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/UnsubscriptionError.js":
-/*!****************************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/UnsubscriptionError.js ***!
-  \****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function UnsubscriptionErrorImpl(errors) {
-    Error.call(this);
-    this.message = errors ?
-        errors.length + " errors occurred during unsubscription:\n" + errors.map(function (err, i) { return i + 1 + ") " + err.toString(); }).join('\n  ') : '';
-    this.name = 'UnsubscriptionError';
-    this.errors = errors;
-    return this;
-}
-UnsubscriptionErrorImpl.prototype = Object.create(Error.prototype);
-exports.UnsubscriptionError = UnsubscriptionErrorImpl;
-//# sourceMappingURL=UnsubscriptionError.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/canReportError.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/canReportError.js ***!
-  \***********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Subscriber_1 = __webpack_require__(/*! ../Subscriber */ "./node_modules/rxjs/internal/Subscriber.js");
-function canReportError(observer) {
-    while (observer) {
-        var _a = observer, closed_1 = _a.closed, destination = _a.destination, isStopped = _a.isStopped;
-        if (closed_1 || isStopped) {
-            return false;
-        }
-        else if (destination && destination instanceof Subscriber_1.Subscriber) {
-            observer = destination;
-        }
-        else {
-            observer = null;
-        }
-    }
-    return true;
-}
-exports.canReportError = canReportError;
-//# sourceMappingURL=canReportError.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/errorObject.js":
-/*!********************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/errorObject.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorObject = { e: {} };
-//# sourceMappingURL=errorObject.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/hostReportError.js":
-/*!************************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/hostReportError.js ***!
-  \************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function hostReportError(err) {
-    setTimeout(function () { throw err; });
-}
-exports.hostReportError = hostReportError;
-//# sourceMappingURL=hostReportError.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/isArray.js":
-/*!****************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/isArray.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.isArray = Array.isArray || (function (x) { return x && typeof x.length === 'number'; });
-//# sourceMappingURL=isArray.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/isArrayLike.js":
-/*!********************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/isArrayLike.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.isArrayLike = (function (x) { return x && typeof x.length === 'number' && typeof x !== 'function'; });
-//# sourceMappingURL=isArrayLike.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/isFunction.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/isFunction.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function isFunction(x) {
-    return typeof x === 'function';
-}
-exports.isFunction = isFunction;
-//# sourceMappingURL=isFunction.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/isInteropObservable.js":
-/*!****************************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/isInteropObservable.js ***!
-  \****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var observable_1 = __webpack_require__(/*! ../symbol/observable */ "./node_modules/rxjs/internal/symbol/observable.js");
-function isInteropObservable(input) {
-    return input && typeof input[observable_1.observable] === 'function';
-}
-exports.isInteropObservable = isInteropObservable;
-//# sourceMappingURL=isInteropObservable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/isIterable.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/isIterable.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var iterator_1 = __webpack_require__(/*! ../symbol/iterator */ "./node_modules/rxjs/internal/symbol/iterator.js");
-function isIterable(input) {
-    return input && typeof input[iterator_1.iterator] === 'function';
-}
-exports.isIterable = isIterable;
-//# sourceMappingURL=isIterable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/isObject.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/isObject.js ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function isObject(x) {
-    return x != null && typeof x === 'object';
-}
-exports.isObject = isObject;
-//# sourceMappingURL=isObject.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/isPromise.js":
-/*!******************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/isPromise.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function isPromise(value) {
-    return value && typeof value.subscribe !== 'function' && typeof value.then === 'function';
-}
-exports.isPromise = isPromise;
-//# sourceMappingURL=isPromise.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/noop.js":
-/*!*************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/noop.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function noop() { }
-exports.noop = noop;
-//# sourceMappingURL=noop.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/pipe.js":
-/*!*************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/pipe.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var noop_1 = __webpack_require__(/*! ./noop */ "./node_modules/rxjs/internal/util/noop.js");
-function pipe() {
-    var fns = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        fns[_i] = arguments[_i];
-    }
-    return pipeFromArray(fns);
-}
-exports.pipe = pipe;
-function pipeFromArray(fns) {
-    if (!fns) {
-        return noop_1.noop;
-    }
-    if (fns.length === 1) {
-        return fns[0];
-    }
-    return function piped(input) {
-        return fns.reduce(function (prev, fn) { return fn(prev); }, input);
-    };
-}
-exports.pipeFromArray = pipeFromArray;
-//# sourceMappingURL=pipe.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/subscribeTo.js":
-/*!********************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/subscribeTo.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Observable_1 = __webpack_require__(/*! ../Observable */ "./node_modules/rxjs/internal/Observable.js");
-var subscribeToArray_1 = __webpack_require__(/*! ./subscribeToArray */ "./node_modules/rxjs/internal/util/subscribeToArray.js");
-var subscribeToPromise_1 = __webpack_require__(/*! ./subscribeToPromise */ "./node_modules/rxjs/internal/util/subscribeToPromise.js");
-var subscribeToIterable_1 = __webpack_require__(/*! ./subscribeToIterable */ "./node_modules/rxjs/internal/util/subscribeToIterable.js");
-var subscribeToObservable_1 = __webpack_require__(/*! ./subscribeToObservable */ "./node_modules/rxjs/internal/util/subscribeToObservable.js");
-var isArrayLike_1 = __webpack_require__(/*! ./isArrayLike */ "./node_modules/rxjs/internal/util/isArrayLike.js");
-var isPromise_1 = __webpack_require__(/*! ./isPromise */ "./node_modules/rxjs/internal/util/isPromise.js");
-var isObject_1 = __webpack_require__(/*! ./isObject */ "./node_modules/rxjs/internal/util/isObject.js");
-var iterator_1 = __webpack_require__(/*! ../symbol/iterator */ "./node_modules/rxjs/internal/symbol/iterator.js");
-var observable_1 = __webpack_require__(/*! ../symbol/observable */ "./node_modules/rxjs/internal/symbol/observable.js");
-exports.subscribeTo = function (result) {
-    if (result instanceof Observable_1.Observable) {
-        return function (subscriber) {
-            if (result._isScalar) {
-                subscriber.next(result.value);
-                subscriber.complete();
-                return undefined;
-            }
-            else {
-                return result.subscribe(subscriber);
-            }
-        };
-    }
-    else if (result && typeof result[observable_1.observable] === 'function') {
-        return subscribeToObservable_1.subscribeToObservable(result);
-    }
-    else if (isArrayLike_1.isArrayLike(result)) {
-        return subscribeToArray_1.subscribeToArray(result);
-    }
-    else if (isPromise_1.isPromise(result)) {
-        return subscribeToPromise_1.subscribeToPromise(result);
-    }
-    else if (result && typeof result[iterator_1.iterator] === 'function') {
-        return subscribeToIterable_1.subscribeToIterable(result);
-    }
-    else {
-        var value = isObject_1.isObject(result) ? 'an invalid object' : "'" + result + "'";
-        var msg = "You provided " + value + " where a stream was expected."
-            + ' You can provide an Observable, Promise, Array, or Iterable.';
-        throw new TypeError(msg);
-    }
-};
-//# sourceMappingURL=subscribeTo.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/subscribeToArray.js":
-/*!*************************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/subscribeToArray.js ***!
-  \*************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.subscribeToArray = function (array) { return function (subscriber) {
-    for (var i = 0, len = array.length; i < len && !subscriber.closed; i++) {
-        subscriber.next(array[i]);
-    }
-    if (!subscriber.closed) {
-        subscriber.complete();
-    }
-}; };
-//# sourceMappingURL=subscribeToArray.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/subscribeToIterable.js":
-/*!****************************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/subscribeToIterable.js ***!
-  \****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var iterator_1 = __webpack_require__(/*! ../symbol/iterator */ "./node_modules/rxjs/internal/symbol/iterator.js");
-exports.subscribeToIterable = function (iterable) { return function (subscriber) {
-    var iterator = iterable[iterator_1.iterator]();
-    do {
-        var item = iterator.next();
-        if (item.done) {
-            subscriber.complete();
-            break;
-        }
-        subscriber.next(item.value);
-        if (subscriber.closed) {
-            break;
-        }
-    } while (true);
-    if (typeof iterator.return === 'function') {
-        subscriber.add(function () {
-            if (iterator.return) {
-                iterator.return();
-            }
-        });
-    }
-    return subscriber;
-}; };
-//# sourceMappingURL=subscribeToIterable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/subscribeToObservable.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/subscribeToObservable.js ***!
-  \******************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var observable_1 = __webpack_require__(/*! ../symbol/observable */ "./node_modules/rxjs/internal/symbol/observable.js");
-exports.subscribeToObservable = function (obj) { return function (subscriber) {
-    var obs = obj[observable_1.observable]();
-    if (typeof obs.subscribe !== 'function') {
-        throw new TypeError('Provided object does not correctly implement Symbol.observable');
-    }
-    else {
-        return obs.subscribe(subscriber);
-    }
-}; };
-//# sourceMappingURL=subscribeToObservable.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/subscribeToPromise.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/subscribeToPromise.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var hostReportError_1 = __webpack_require__(/*! ./hostReportError */ "./node_modules/rxjs/internal/util/hostReportError.js");
-exports.subscribeToPromise = function (promise) { return function (subscriber) {
-    promise.then(function (value) {
-        if (!subscriber.closed) {
-            subscriber.next(value);
-            subscriber.complete();
-        }
-    }, function (err) { return subscriber.error(err); })
-        .then(null, hostReportError_1.hostReportError);
-    return subscriber;
-}; };
-//# sourceMappingURL=subscribeToPromise.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/toSubscriber.js":
-/*!*********************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/toSubscriber.js ***!
-  \*********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Subscriber_1 = __webpack_require__(/*! ../Subscriber */ "./node_modules/rxjs/internal/Subscriber.js");
-var rxSubscriber_1 = __webpack_require__(/*! ../symbol/rxSubscriber */ "./node_modules/rxjs/internal/symbol/rxSubscriber.js");
-var Observer_1 = __webpack_require__(/*! ../Observer */ "./node_modules/rxjs/internal/Observer.js");
-function toSubscriber(nextOrObserver, error, complete) {
-    if (nextOrObserver) {
-        if (nextOrObserver instanceof Subscriber_1.Subscriber) {
-            return nextOrObserver;
-        }
-        if (nextOrObserver[rxSubscriber_1.rxSubscriber]) {
-            return nextOrObserver[rxSubscriber_1.rxSubscriber]();
-        }
-    }
-    if (!nextOrObserver && !error && !complete) {
-        return new Subscriber_1.Subscriber(Observer_1.empty);
-    }
-    return new Subscriber_1.Subscriber(nextOrObserver, error, complete);
-}
-exports.toSubscriber = toSubscriber;
-//# sourceMappingURL=toSubscriber.js.map
-
-/***/ }),
-
-/***/ "./node_modules/rxjs/internal/util/tryCatch.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/rxjs/internal/util/tryCatch.js ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var errorObject_1 = __webpack_require__(/*! ./errorObject */ "./node_modules/rxjs/internal/util/errorObject.js");
-var tryCatchTarget;
-function tryCatcher() {
-    try {
-        return tryCatchTarget.apply(this, arguments);
-    }
-    catch (e) {
-        errorObject_1.errorObject.e = e;
-        return errorObject_1.errorObject;
-    }
-}
-function tryCatch(fn) {
-    tryCatchTarget = fn;
-    return tryCatcher;
-}
-exports.tryCatch = tryCatch;
-//# sourceMappingURL=tryCatch.js.map
-
-/***/ }),
-
 /***/ "./node_modules/tslib/tslib.es6.js":
 /*!*****************************************!*\
   !*** ./node_modules/tslib/tslib.es6.js ***!
   \*****************************************/
-/*! exports provided: __extends, __assign, __rest, __decorate, __param, __metadata, __awaiter, __generator, __exportStar, __values, __read, __spread, __await, __asyncGenerator, __asyncDelegator, __asyncValues, __makeTemplateObject, __importStar, __importDefault */
+/*! exports provided: __extends, __assign, __rest, __decorate, __param, __metadata, __awaiter, __generator, __exportStar, __values, __read, __spread, __spreadArrays, __await, __asyncGenerator, __asyncDelegator, __asyncValues, __makeTemplateObject, __importStar, __importDefault */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -92661,6 +91517,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__values", function() { return __values; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__read", function() { return __read; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__spread", function() { return __spread; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__spreadArrays", function() { return __spreadArrays; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__await", function() { return __await; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncGenerator", function() { return __asyncGenerator; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncDelegator", function() { return __asyncDelegator; });
@@ -92713,8 +91570,10 @@ function __rest(s, e) {
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
         t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
-            t[p[i]] = s[p[i]];
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
     return t;
 }
 
@@ -92807,6 +91666,14 @@ function __spread() {
         ar = ar.concat(__read(arguments[i]));
     return ar;
 }
+
+function __spreadArrays() {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 
 function __await(v) {
     return this instanceof __await ? (this.v = v, this) : new __await(v);
